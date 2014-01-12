@@ -14,8 +14,10 @@ define('MNO_PHP_SSO_DIR', './../../lib/mno-php/src/sso/');
 require MNO_PHP_SSO_DIR . 'MnoSsoBaseUser.php';
 
 // Dependencies: your app files
-#define('MY_APP_DIR', './../../../include/');
-#require MY_APP_DIR . 'some_app_file.php';
+define('MY_APP_DIR', './../../../');
+require MY_APP_DIR . 'symfony/lib/vendor/symfony/lib/form/sfForm.class.php';
+require MY_APP_DIR . 'symfony/plugins/orangehrmPimPlugin/lib/form/AddEmployeeForm.php';
+
 
 // Tested class: 
 define('TEST_INT_SSO_DIR', './../sso/');
