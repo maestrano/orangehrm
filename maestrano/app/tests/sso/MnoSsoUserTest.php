@@ -91,6 +91,34 @@ CERTIFICATE;
     {
     }
     
+    public function testFunctionBuildLocalEmployee()
+    {
+      // Specify which protected method get tested
+      $protected_method = self::getMethod('buildLocalEmployee');
+      
+      // Build User
+      $assertion = file_get_contents(TEST_ROOT . '/support/sso-responses/response_ext_user.xml.base64');
+      $sso_user = new MnoSsoUser(new OneLogin_Saml_Response($this->_saml_settings, $assertion));
+      $sso_user->local_id = null;
+      $sso_user->app_owner = true; 
+      
+      // Run method
+      $f = $protected_method->invokeArgs($sso_user,array());
+      
+      // Test that user fields have been populated correctly
+      $this->assertEquals($sso_user->name, $f["firstName"]);
+      $this->assertEquals("", $f["middleName"]);
+      $this->assertEquals($sso_user->surname, $f["lastName"]);
+      $this->assertEquals("", $f["employeeId"]);
+      $this->assertEquals($sso_user->email, $f["user_name"]);
+      $this->assertEquals(20, strlen($f["user_password"]));
+      $this->assertEquals($f["user_password"], $f["re_password"]);
+      $this->assertEquals("Enabled", $f["status"]);
+      $this->assertEquals("", $f["empNumber"]);
+      $this->assertEquals("", $f["empNumber"]);
+      $this->assertEquals($sso_user->email, $f["emp_work_email"]);
+    }
+    
     public function testFunctionSignIn()
     {
     }

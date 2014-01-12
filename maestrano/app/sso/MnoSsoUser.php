@@ -69,20 +69,47 @@ class MnoSsoUser extends MnoSsoBaseUser
    *
    * @return the ID of the user created, null otherwise
    */
-  // protected function createLocalUser()
-  // {
-  //   $lid = null;
-  //   
-  //   if ($this->accessScope() == 'private') {
-  //     // First set $conn variable (need global variable?)
-  //     $conn = $this->connection;
-  //     
-  //     // Create user
-  //     $lid = $this->connection->query("CREATE BLA.....");
-  //   }
-  //   
-  //   return $lid;
-  // }
+  protected function createLocalUser()
+  {
+    $lid = null;
+    
+    if ($this->local_id) {
+      return $this->local_id;
+    }
+    
+    if ($this->accessScope() == 'private') {
+      // Prepare employee form
+      $employee_form = new AddEmployeeForm(array(), $this->buildLocalEmployee(), true);
+      $employee_form->createUserAccount = 1;
+      $lid = $employee_form->save();
+    }
+    
+    return $lid;
+  }
+  
+  /**
+   * Build an employee array ready to be
+   * used for OHRM user creation
+   *
+   * @return array user information
+   */
+  protected function buildLocalEmployee()
+  {
+    $fields = array();
+    $fields["firstName"] = $this->name;
+    $fields["middleName"] = "";
+    $fields["lastName"] = $this->surname;
+    $fields["employeeId"] = "";
+    $fields["user_name"] = $this->email;
+    $fields["user_password"] = $this->generatePassword();
+    $fields["re_password"] = $fields["user_password"];
+    $fields["status"] = "Enabled";
+    $fields["empNumber"] = "";
+    $fields["empNumber"] = "";
+    $fields["emp_work_email"] = $this->email;
+    
+    return $fields;
+  }
   
   /**
    * Get the ID of a local user via Maestrano UID lookup
