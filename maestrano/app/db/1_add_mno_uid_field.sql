@@ -1,1 +1,1 @@
-ALTER TABLE  `ohrm_user` ADD  `mno_uid` VARCHAR( 255 ) NULL DEFAULT NULL ;
+ALTER TABLE  `hs_hr_employee` ADD  `mno_uid` VARCHAR( 255 ) NULL DEFAULT NULL ;
