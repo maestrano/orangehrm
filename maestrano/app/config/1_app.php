@@ -4,7 +4,7 @@ $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') ? 'https://
 $full_host = $protocol . $_SERVER['HTTP_HOST'];
 
 // Name of your application
-$mno_settings->app_name = 'my-app';
+$mno_settings->app_name = 'OrangeHRM';
 
 // Enable Maestrano SSO for this app
 $mno_settings->sso_enabled = true;
