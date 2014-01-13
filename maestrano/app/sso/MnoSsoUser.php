@@ -12,6 +12,12 @@ class MnoSsoUser extends MnoSsoBaseUser
    */
   public $connection = null;
   
+  /**
+   * User form
+   * @var AddEmployeeForm
+   */
+  public $_user = null;
+  
   
   /**
    * Extend constructor to inialize app specific objects
@@ -79,9 +85,8 @@ class MnoSsoUser extends MnoSsoBaseUser
     
     if ($this->accessScope() == 'private') {
       // Prepare employee form
-      $employee_form = new AddEmployeeForm(array(), $this->buildLocalEmployee(), true);
-      $employee_form->createUserAccount = 1;
-      $lid = $employee_form->save();
+      $this->buildLocalUser();
+      $lid = $this->_user->save();
     }
     
     return $lid;
@@ -91,9 +96,9 @@ class MnoSsoUser extends MnoSsoBaseUser
    * Build an employee array ready to be
    * used for OHRM user creation
    *
-   * @return array user information
+   * @return AddEmployeeForm object
    */
-  protected function buildLocalEmployee()
+  protected function buildLocalUser()
   {
     $fields = array();
     $fields["firstName"] = $this->name;
@@ -108,7 +113,10 @@ class MnoSsoUser extends MnoSsoBaseUser
     $fields["empNumber"] = "";
     $fields["emp_work_email"] = $this->email;
     
-    return $fields;
+    $this->_user = new AddEmployeeForm(array(), $fields, true);
+    $this->_user->createUserAccount = 1;
+    
+    return $this->_user;
   }
   
   /**

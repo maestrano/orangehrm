@@ -1,14 +1,26 @@
 <?php
 
-// Class helper for database connection
-class PDOMock extends PDO {
-    public function __construct() {}
-    
-    // Make it final to avoid stubbing
-    public final function quote($arg)
-    {
-      return "'$arg'";
-    }
+// Stub class
+class AddEmployeeForm {
+  public $defaults = array();
+  public $options = array();
+  public $CSRFSecret = array();
+  
+  public $_stub_save = 1234;
+  public $_called_saved = 0;
+  
+  public function __construct($defaults = array(), $options = array(), $CSRFSecret = null) 
+  {
+    $this->defaults = $defaults;
+    $this->options = $options;
+    $this->CSRFSecret = $CSRFSecret;
+  }
+  
+  public function save()
+  {
+    $this->_called_saved++;
+    return $this->_stub_save;
+  }
 }
 
 // Class Test
@@ -89,12 +101,25 @@ CERTIFICATE;
     
     public function testFunctionCreateLocalUser()
     {
+      // Specify which protected method get tested
+      $protected_method = self::getMethod('createLocalUser');
+      
+      // Build User
+      $assertion = file_get_contents(TEST_ROOT . '/support/sso-responses/response_ext_user.xml.base64');
+      $sso_user = new MnoSsoUser(new OneLogin_Saml_Response($this->_saml_settings, $assertion));
+      $sso_user->local_id = null;
+      $sso_user->app_owner = true;
+      
+      // Check save has been called on user
+      $result = $protected_method->invokeArgs($sso_user,array());
+      $this->assertEquals($sso_user->_user->_stub_save, $result);
+      $this->assertEquals(1, $sso_user->_user->_called_saved);
     }
     
-    public function testFunctionBuildLocalEmployee()
+    public function testFunctionBuildLocalUser()
     {
       // Specify which protected method get tested
-      $protected_method = self::getMethod('buildLocalEmployee');
+      $protected_method = self::getMethod('buildLocalUser');
       
       // Build User
       $assertion = file_get_contents(TEST_ROOT . '/support/sso-responses/response_ext_user.xml.base64');
@@ -103,7 +128,8 @@ CERTIFICATE;
       $sso_user->app_owner = true; 
       
       // Run method
-      $f = $protected_method->invokeArgs($sso_user,array());
+      $protected_method->invokeArgs($sso_user,array());
+      $f = $sso_user->_user->options;
       
       // Test that user fields have been populated correctly
       $this->assertEquals($sso_user->name, $f["firstName"]);
