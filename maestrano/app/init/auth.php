@@ -10,7 +10,7 @@ if (!defined('MAESTRANO_ROOT')) {
 // Load Libraries & Settings
 //-----------------------------------------------
 require MAESTRANO_ROOT . '/app/init/_lib_loader.php';
-require MAESTRANO_ROOT . '/app/init/_config_loader.php'; //set $mno_settings variable
+require MAESTRANO_ROOT . '/app/init/_config_loader.php'; //configure MaestranoService
 
 //-----------------------------------------------
 // Require your app specific files here

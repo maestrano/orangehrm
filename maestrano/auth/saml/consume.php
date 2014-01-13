@@ -16,10 +16,12 @@ define("MAESTRANO_ROOT", realpath(dirname(__FILE__) . '/../../'));
 
 error_reporting(E_ALL);
 
-$mno_settings = NULL;
 require MAESTRANO_ROOT . '/app/init/auth.php';
 
 session_start();
+
+// Get Maestrano Service
+$maestrano = MaestranoService::getInstance();
 
 // Options variable
 if (!isset($opts)) {
@@ -33,7 +35,7 @@ if (isset($_SESSION['mno_previous_url'])) {
 } else {
   $after_signin_url = "/";
 }
-$samlResponse = new OneLogin_Saml_Response($mno_settings->getSamlSettings(), $_POST['SAMLResponse']);
+$samlResponse = new OneLogin_Saml_Response($maestrano->getSettings()->getSamlSettings(), $_POST['SAMLResponse']);
 
 try {
     if ($samlResponse->isValid()) {
@@ -56,7 +58,7 @@ try {
           $sso_user->signIn();
           header("Location: " . $after_signin_url);
         } else {
-          header("Location: " . $mno_settings->sso_access_unauthorized_url);
+          header("Location: " . $maestrano->getSsoUnauthorizedUrl());
         }
     }
     else {
