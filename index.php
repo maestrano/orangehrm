@@ -33,5 +33,8 @@ if (!$installed) {
     exit();    
 }
 
-header("Location: ./symfony/web/index.php/auth/login");
+// Hook:Maestrano
+// Change redirection to point to app index rather than login
+//header("Location: ./symfony/web/index.php/auth/login");
+header("Location: ./symfony/web/index.php");
 exit();
