@@ -111,6 +111,29 @@ class MnoSsoUser extends MnoSsoBaseUser
     return $this->_user;
   }
   
+  /**
+   * Get which role should be assigned to the user
+   *
+   * @return Integer the role id
+   */
+  protected function getRoleId()
+  {
+    $role_id = 2; // ESS
+    
+    if ($this->app_owner) {
+      $role_id = 1; // Admin
+    } else {
+      foreach ($this->organizations as $organization) {
+        if ($organization['role'] == 'Admin' || $organization['role'] == 'Super Admin') {
+          $role_id = 1;
+        } else {
+          $role_id = 2;
+        }
+      }
+    }
+    
+    return $role_id;
+  }
   
   /**
    * Build a system user ready to
@@ -127,7 +150,7 @@ class MnoSsoUser extends MnoSsoBaseUser
     $user = new SystemUser();
     $user->setDateEntered(date('Y-m-d H:i:s'));
     $user->setUserPassword($this->generatePassword());
-    $user->setUserRoleId(2);
+    $user->setUserRoleId($this->getRoleId());
     $user->setEmpNumber($local_id);
     $user->setUserName($this->uid);
     $user->setStatus(1);
