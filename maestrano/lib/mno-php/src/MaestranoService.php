@@ -94,7 +94,7 @@ class MaestranoService
      */
     public function isSsoIntranetEnabled()
     {
-      return (self::$_settings && self::$_settings->sso_intranet_mode);
+      return ($this->isSsoEnabled() && self::$_settings->sso_intranet_mode);
     }
     
     /**

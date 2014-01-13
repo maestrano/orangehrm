@@ -1,8 +1,5 @@
 <?php
 
-// Is Maestrano enabled?
-$maestrano_enabled = true;
-
 /* For logging PHP errors */
 include_once('../../lib/confs/log_settings.php');
 
@@ -22,16 +19,14 @@ if (!is_file(ROOT_PATH . '/lib/confs/Conf.php')) {
 require_once(dirname(__FILE__).'/../config/ProjectConfiguration.class.php');
 
 // Hook:Maestrano
-// Load Maestrano session
-if ($maestrano_enabled) {
-  require ROOT_PATH . '/maestrano/app/init/session.php';
-  
-  // Require authentication straight away if intranet
-  // mode enabled
-  if ($mno_settings && $mno_settings->sso_enabled && $mno_settings->sso_intranet_mode && $mno_session) {
-    if (!$mno_session->isValid()) {
-      header("Location: " . $mno_settings->sso_init_url);
-    }
+// Load Maestrano
+// Require authentication straight away if intranet
+// mode enabled
+require ROOT_PATH . '/maestrano/app/init/session.php';
+$maestrano = MaestranoService::getInstance();
+if ($maestrano->isSsoIntranetEnabled()) {
+  if (!$maestrano->getSsoSession()->isValid()) {
+    header("Location: " . $maestrano->getSsoInitUrl());
   }
 }
 

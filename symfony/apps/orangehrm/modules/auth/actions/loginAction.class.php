@@ -9,9 +9,9 @@ class loginAction extends sfAction {
     public function execute($request) {
         
         // Hook:Maestrano
-        global $mno_settings;
-        if ($mno_settings && $mno_settings->sso_enabled) {
-          $this->redirect($mno_settings->sso_init_url);
+        $maestrano = MaestranoService::getInstance();
+        if ($maestrano->isSsoEnabled()) {
+          $this->redirect($maestrano->getSsoInitUrl());
         }
         
         $loginForm = new LoginForm();
@@ -21,4 +21,3 @@ class loginAction extends sfAction {
     }
 
 }
-

@@ -11,9 +11,9 @@ class logoutAction extends sfAction {
         $authService->clearCredentials();
         
         // Hook:Maestrano
-        global $mno_settings;
-        if ($mno_settings && $mno_settings->sso_enabled) {
-          $this->redirect($mno_settings->sso_access_logout_url);
+        $maestrano = MaestranoService::getInstance();
+        if ($maestrano->isSsoEnabled()) {
+          $this->redirect($maestrano->getSsoLogoutUrl());
         }
         
         $this->redirect('auth/login');
