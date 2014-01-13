@@ -18,6 +18,12 @@ class MnoSsoUser extends MnoSsoBaseUser
    */
   public $_user = null;
   
+  /**
+   * SysUser form
+   * @var SystemUserForm
+   */
+  public $_sysuser = null;
+  
   
   /**
    * Extend constructor to inialize app specific objects
@@ -84,9 +90,16 @@ class MnoSsoUser extends MnoSsoBaseUser
     }
     
     if ($this->accessScope() == 'private') {
-      $fields = $this->buildLocalUser();
-      $this->_user->bind($fields, array());
-      $lid = $this->_user->save();
+      // Create employee
+      $this->buildLocalUser();
+      $service = new EmployeeService();
+      $service->saveEmployee($this->_user);
+      $lid = $this->_user->empNumber;
+      
+      // Create system user
+      $service = new SystemUserService();
+      $this->buildLocalSysUser($lid);
+      $service->saveSystemUser($this->_sysuser, true);
     }
     
     return $lid;
@@ -100,21 +113,41 @@ class MnoSsoUser extends MnoSsoBaseUser
    */
   protected function buildLocalUser()
   {
-    $fields = array();
-    $fields["firstName"] = $this->name;
-    $fields["middleName"] = "";
-    $fields["lastName"] = $this->surname;
-    $fields["employeeId"] = "";
-    $fields["user_name"] = $this->email;
-    $fields["user_password"] = $this->generatePassword();
-    $fields["re_password"] = $fields["user_password"];
-    $fields["status"] = "Enabled";
-    $fields["empNumber"] = "0";
+    $employee = new Employee();
+    $employee->setFirstName($this->name);
+    $employee->setLastName($this->surname);
+    $employee->setEmpWorkEmail($this->email);
     
-    $this->_user = new AddEmployeeForm(array(), $fields, false);
-    $this->_user->createUserAccount = 1;
+    $this->_user = $employee;
     
-    return $fields;
+    return $this->_user;
+  }
+  
+  
+  /**
+   * Build a system user ready to
+   * be saved
+   *
+   * @return SystemUserForm object
+   */
+  protected function buildLocalSysUser($local_id = null)
+  {
+    if($this->local_id) {
+      $local_id = $this->local_id;
+    }
+    
+    $user = new SystemUser();
+    $user->setDateEntered(date('Y-m-d H:i:s'));
+    $user->setUserPassword($this->generatePassword());
+    $user->setUserRoleId(2);
+    $user->setEmpNumber($local_id);
+    $user->setUserName($this->uid);
+    $user->setStatus(1);
+    
+    $this->_sysuser = $user;
+    //$this->_sysuser->bind($fields);
+    
+    return $this->_sysuser;
   }
   
   /**
@@ -125,10 +158,29 @@ class MnoSsoUser extends MnoSsoBaseUser
    */
    protected function syncLocalDetails()
    {
-     // if($this->local_id) {
-     //   $upd = $this->connection->query("UPDATE user SET name = {$this->connection->quote($this->name . ' ' . $this->surname)}, email = {$this->connection->quote($this->email)} WHERE ID = $this->local_id");
-     //   return $upd;
-     // }
+     if($this->local_id) {
+       // Update Employee details
+       $q = Doctrine_Query :: create()->update('Employee')
+                       ->set('emp_work_email', '?', $this->email)
+                       ->set('emp_firstname', '?', $this->name)
+                       ->set('emp_lastname', '?', $this->surname)
+                       ->where('empNumber = ?', $this->local_id);
+       $upd = $q->execute();
+       
+       // Chech if a system user exists for this Employee
+       $q = Doctrine_Manager::getInstance()->getCurrentConnection();
+       $result = $q->execute("SELECT id from ohrm_user WHERE emp_number = '$this->local_id'")->fetch();
+       
+       // If employee has an associated user then finish local sync
+       // Otherwise create a new ohrm user
+       if ($result && $result['id']) {
+         return true;
+       } else {
+         $service = new SystemUserService();
+         $this->buildLocalSysUser();
+         $service->saveSystemUser($this->_sysuser, true);
+       }
+     }
      
      return false;
    }
