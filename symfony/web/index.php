@@ -20,7 +20,7 @@ require_once(dirname(__FILE__).'/../config/ProjectConfiguration.class.php');
 
 // Hook:Maestrano
 // Load Maestrano
-require ROOT_PATH . '/maestrano/app/init/session.php';
+require ROOT_PATH . '/maestrano/app/init/base.php';
 
 $configuration = ProjectConfiguration::getApplicationConfiguration('orangehrm', 'prod', false);
 sfContext::createInstance($configuration)->dispatch();

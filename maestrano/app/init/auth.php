@@ -1,16 +1,11 @@
 <?php
 //-----------------------------------------------
-// Define root folder
+// Define root folder and load base
 //-----------------------------------------------
 if (!defined('MAESTRANO_ROOT')) {
   define("MAESTRANO_ROOT", realpath(dirname(__FILE__) . '/../../'));
 }
-
-//-----------------------------------------------
-// Load Libraries & Settings
-//-----------------------------------------------
-require MAESTRANO_ROOT . '/app/init/_lib_loader.php';
-require MAESTRANO_ROOT . '/app/init/_config_loader.php'; //configure MaestranoService
+require MAESTRANO_ROOT . '/app/init/base.php';
 
 //-----------------------------------------------
 // Require your app specific files here
