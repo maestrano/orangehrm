@@ -20,15 +20,7 @@ require_once(dirname(__FILE__).'/../config/ProjectConfiguration.class.php');
 
 // Hook:Maestrano
 // Load Maestrano
-// Require authentication straight away if intranet
-// mode enabled
 require ROOT_PATH . '/maestrano/app/init/session.php';
-$maestrano = MaestranoService::getInstance();
-if ($maestrano->isSsoIntranetEnabled()) {
-  if (!$maestrano->getSsoSession()->isValid()) {
-    header("Location: " . $maestrano->getSsoInitUrl());
-  }
-}
 
 $configuration = ProjectConfiguration::getApplicationConfiguration('orangehrm', 'prod', false);
 sfContext::createInstance($configuration)->dispatch();

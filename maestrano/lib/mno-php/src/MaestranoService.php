@@ -7,10 +7,9 @@
  */
 class MaestranoService
 {
-  protected static $_php_session;
-  protected static $_sso_session;
   protected static $_settings;
   protected static $_instance;
+  protected static $_default_after_sso_sign_in_path = '/';
   
   /**
    * constructor
@@ -24,11 +23,9 @@ class MaestranoService
    *
    * @return MaestranoService
    */
-  public static function configure(MnoSettings $config_settings, &$session)
+  public static function configure(MnoSettings $config_settings)
   {
       self::$_settings = $config_settings;
-      self::$_php_session = & $session;
-      self::$_sso_session = new MnoSsoSession(self::$_settings, self::$_php_session);
   }
    
   /**
@@ -64,7 +61,7 @@ class MaestranoService
     */
    public function getPhpSession()
    {
-     return self::$_php_session;
+     return $_SESSION;
    }
    
    /**
@@ -74,7 +71,7 @@ class MaestranoService
     */
     public function getSsoSession()
     {
-      return self::$_sso_session;
+      return new MnoSsoSession(self::$_settings, $this->getPhpSession());
     }
     
     /**
@@ -128,6 +125,32 @@ class MaestranoService
     public function getSsoUnauthorizedUrl()
     {
       return self::$_settings->sso_access_logout_url;
+    }
+    
+    /**
+     * Set the after sso signin path
+     *
+     * @return string url
+     */
+    public function setAfterSsoSignInPath($path)
+    {
+      if ($this->getPhpSession()) {
+        $this->getPhpSession()['mno_previous_url'] = $path;
+      }
+    }
+    
+    /**
+     * Return the after sso signin path
+     *
+     * @return string url
+     */
+    public function getAfterSsoSignInPath()
+    {
+      if ($this->getPhpSession() && $this->getPhpSession()['mno_previous_url']) {
+        return $this->getPhpSession()['mno_previous_url'];
+      } else {
+        return self::$_default_after_sso_sign_in_path;
+      }
     }
   
 }

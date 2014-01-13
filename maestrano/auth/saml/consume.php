@@ -28,13 +28,7 @@ if (!isset($opts)) {
   $opts = array();
 }
 
-// Check where we should redirect the user
-// after successful login
-if (isset($_SESSION['mno_previous_url'])) {
-  $after_signin_url = $_SESSION['mno_previous_url'];
-} else {
-  $after_signin_url = "/";
-}
+// Build SAML response
 $samlResponse = new OneLogin_Saml_Response($maestrano->getSettings()->getSamlSettings(), $_POST['SAMLResponse']);
 
 try {
@@ -56,7 +50,7 @@ try {
         // Refuse access otherwise
         if ($sso_user->local_id) {
           $sso_user->signIn();
-          header("Location: " . $after_signin_url);
+          header("Location: " . $maestrano->getAfterSsoSignInPath());
         } else {
           header("Location: " . $maestrano->getSsoUnauthorizedUrl());
         }
