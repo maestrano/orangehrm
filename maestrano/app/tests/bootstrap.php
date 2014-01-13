@@ -18,7 +18,7 @@ define('AUTOLOAD_MGT_DIR', './../..//lib/autoload-manager/');
 require AUTOLOAD_MGT_DIR . 'autoloadManager.php';
 
 $autoloadManager = new AutoloadManager();
-$autoloadManager->setSaveFile('./_autoload_hash_map.php');
+$autoloadManager->setSaveFile('./../tmp/_autoload_hash_map.php');
 
 // Dependencies: your app files
 define('MY_APP_DIR', './../../../');
