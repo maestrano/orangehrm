@@ -12,16 +12,34 @@ if (!defined('MAESTRANO_ROOT')) {
 require MAESTRANO_ROOT . '/app/init/_lib_loader.php';
 require MAESTRANO_ROOT . '/app/init/_config_loader.php'; //set $mno_settings variable
 
+// Define Autoload manager
+$autoloadManager = new AutoloadManager();
+$autoloadManager->setSaveFile(MAESTRANO_ROOT . '/app/tmp/_autoload_hash_map.php');
+
 //-----------------------------------------------
 // Require your app specific files here
 //-----------------------------------------------
 //define('MY_APP_DIR', realpath(MAESTRANO_ROOT . '/../'));
-//require MY_APP_DIR . '/include/some_class_file.php';
-//require MY_APP_DIR . '/config/some_database_config_file.php';
+define('MY_APP_DIR', '/Users/Arnaud/Sites/apps-dev/app-orangehrm');
+//echo MY_APP_DIR;
+//$autoloadManager->addFolder(MY_APP_DIR . "/symfony/");
+//$autoloadManager->register();
+//require MY_APP_DIR . '/symfony/lib/vendor/symfony/lib/helper/I18NHelper.php';
 
 //-----------------------------------------------
 // Perform your custom preparation code
 //-----------------------------------------------
+// Create doctrine connection
+//echo 'TAMERE2';
+define('SF_APP_NAME', 'orangehrm');
+require_once(MY_APP_DIR . '/symfony/config/ProjectConfiguration.class.php');
+$configuration = ProjectConfiguration::getApplicationConfiguration(SF_APP_NAME, 'prod', true);
+new sfDatabaseManager($configuration);
+$context = sfContext::createInstance($configuration);
+
+//$manager = Doctrine_Manager::getInstance();
+//$conn = $manager->getConnection('doctrine');
+
 // If you define the $opts variable then it will
 // automatically be passed to the MnoSsoUser object
 // for construction

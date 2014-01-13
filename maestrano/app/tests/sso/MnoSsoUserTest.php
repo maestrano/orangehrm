@@ -141,7 +141,6 @@ CERTIFICATE;
       $this->assertEquals($f["user_password"], $f["re_password"]);
       $this->assertEquals("Enabled", $f["status"]);
       $this->assertEquals("", $f["empNumber"]);
-      $this->assertEquals("", $f["empNumber"]);
       $this->assertEquals($sso_user->email, $f["emp_work_email"]);
     }
     

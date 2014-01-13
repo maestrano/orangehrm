@@ -84,8 +84,8 @@ class MnoSsoUser extends MnoSsoBaseUser
     }
     
     if ($this->accessScope() == 'private') {
-      // Prepare employee form
-      $this->buildLocalUser();
+      $fields = $this->buildLocalUser();
+      $this->_user->bind($fields, array());
       $lid = $this->_user->save();
     }
     
@@ -109,47 +109,13 @@ class MnoSsoUser extends MnoSsoBaseUser
     $fields["user_password"] = $this->generatePassword();
     $fields["re_password"] = $fields["user_password"];
     $fields["status"] = "Enabled";
-    $fields["empNumber"] = "";
-    $fields["empNumber"] = "";
-    $fields["emp_work_email"] = $this->email;
+    $fields["empNumber"] = "0";
     
-    $this->_user = new AddEmployeeForm(array(), $fields, true);
+    $this->_user = new AddEmployeeForm(array(), $fields, false);
     $this->_user->createUserAccount = 1;
     
-    return $this->_user;
+    return $fields;
   }
-  
-  /**
-   * Get the ID of a local user via Maestrano UID lookup
-   *
-   * @return a user ID if found, null otherwise
-   */
-  // protected function getLocalIdByUid()
-  // {
-  //   $result = $this->connection->query("SELECT ID FROM user WHERE mno_uid = {$this->connection->quote($this->uid)} LIMIT 1")->fetch();
-  //   
-  //   if ($result && $result['ID']) {
-  //     return $result['ID'];
-  //   }
-  //   
-  //   return null;
-  // }
-  
-  /**
-   * Get the ID of a local user via email lookup
-   *
-   * @return a user ID if found, null otherwise
-   */
-  // protected function getLocalIdByEmail()
-  // {
-  //   $result = $this->connection->query("SELECT ID FROM user WHERE email = {$this->connection->quote($this->email)} LIMIT 1")->fetch();
-  //   
-  //   if ($result && $result['ID']) {
-  //     return $result['ID'];
-  //   }
-  //   
-  //   return null;
-  // }
   
   /**
    * Set all 'soft' details on the user (like name, surname, email)
@@ -157,28 +123,84 @@ class MnoSsoUser extends MnoSsoBaseUser
    *
    * @return boolean whether the user was synced or not
    */
-   // protected function syncLocalDetails()
-   // {
-   //   if($this->local_id) {
-   //     $upd = $this->connection->query("UPDATE user SET name = {$this->connection->quote($this->name . ' ' . $this->surname)}, email = {$this->connection->quote($this->email)} WHERE ID = $this->local_id");
-   //     return $upd;
-   //   }
-   //   
-   //   return false;
-   // }
+   protected function syncLocalDetails()
+   {
+     // if($this->local_id) {
+     //   $upd = $this->connection->query("UPDATE user SET name = {$this->connection->quote($this->name . ' ' . $this->surname)}, email = {$this->connection->quote($this->email)} WHERE ID = $this->local_id");
+     //   return $upd;
+     // }
+     
+     return false;
+   }
+  
+  /**
+   * Get the ID of a local user via Maestrano UID lookup
+   *
+   * @return a user ID if found, null otherwise
+   */
+  protected function getLocalIdByUid()
+  {
+    $result = null;
+    echo 'in getLocalIdByUid <br/><br/>';
+    $q = Doctrine_Manager::getInstance()->getCurrentConnection();
+    echo 'after currentconnection';
+    try {
+      $result = $q->execute("SELECT emp_number from hs_hr_employee WHERE mno_uid = '$this->uid'")->fetch();
+    } catch (Exception $e) {
+      echo $e;
+    }
+    
+    //$result = Doctrine :: getTable('Employee')->findOneBy(array('mnoUid' => $this->uid));
+    echo 'After query';
+    echo("Result is " . var_dump($result));
+    
+    if ($result && $result['emp_number']) {
+      return $result['emp_number'];
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Get the ID of a local user via email lookup
+   *
+   * @return a user ID if found, null otherwise
+   */
+  protected function getLocalIdByEmail()
+  {
+    $result = null;
+    echo 'in getLocalIdByUid <br/><br/>';
+    $q = Doctrine_Manager::getInstance()->getCurrentConnection();
+    echo 'after currentconnection';
+    try {
+      $result = $q->execute("SELECT emp_number from hs_hr_employee WHERE emp_work_email = '$this->email'")->fetch();
+    } catch (Exception $e) {
+      echo $e;
+    }
+    //$result = Doctrine :: getTable('Employee')->findOneBy(array('emp_work_email' => $this->email));
+    
+    if ($result && $result['emp_number']) {
+      return $result['emp_number'];
+    }
+    
+    return null;
+  }
   
   /**
    * Set the Maestrano UID on a local user via id lookup
    *
    * @return a user ID if found, null otherwise
    */
-  // protected function setLocalUid()
-  // {
-  //   if($this->local_id) {
-  //     $upd = $this->connection->query("UPDATE user SET mno_uid = {$this->connection->quote($this->uid)} WHERE ID = $this->local_id");
-  //     return $upd;
-  //   }
-  //   
-  //   return false;
-  // }
+  protected function setLocalUid()
+  {
+    if($this->local_id) {
+      $q = Doctrine_Query :: create()->update('Employee')
+                      ->set('mno_uid', '?', $this->uid)
+                      ->where('empNumber = ?', $this->local_id);
+      $upd = $q->execute();
+      return $upd;
+    }
+    
+    return false;
+  }
 }
