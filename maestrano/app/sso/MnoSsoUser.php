@@ -106,8 +106,8 @@ class MnoSsoUser extends MnoSsoBaseUser
   }
   
   /**
-   * Build an employee array ready to be
-   * used for OHRM user creation
+   * Build an employee object ready to
+   * be saved
    *
    * @return AddEmployeeForm object
    */
@@ -128,7 +128,7 @@ class MnoSsoUser extends MnoSsoBaseUser
    * Build a system user ready to
    * be saved
    *
-   * @return SystemUserForm object
+   * @return SystemUser object
    */
   protected function buildLocalSysUser($local_id = null)
   {
@@ -145,7 +145,6 @@ class MnoSsoUser extends MnoSsoBaseUser
     $user->setStatus(1);
     
     $this->_sysuser = $user;
-    //$this->_sysuser->bind($fields);
     
     return $this->_sysuser;
   }
@@ -159,6 +158,7 @@ class MnoSsoUser extends MnoSsoBaseUser
    protected function syncLocalDetails()
    {
      if($this->local_id) {
+       
        // Update Employee details
        $q = Doctrine_Query :: create()->update('Employee')
                        ->set('emp_work_email', '?', $this->email)
@@ -180,6 +180,7 @@ class MnoSsoUser extends MnoSsoBaseUser
          $this->buildLocalSysUser();
          $service->saveSystemUser($this->_sysuser, true);
        }
+       
      }
      
      return false;
@@ -192,19 +193,8 @@ class MnoSsoUser extends MnoSsoBaseUser
    */
   protected function getLocalIdByUid()
   {
-    $result = null;
-    echo 'in getLocalIdByUid <br/><br/>';
     $q = Doctrine_Manager::getInstance()->getCurrentConnection();
-    echo 'after currentconnection';
-    try {
-      $result = $q->execute("SELECT emp_number from hs_hr_employee WHERE mno_uid = '$this->uid'")->fetch();
-    } catch (Exception $e) {
-      echo $e;
-    }
-    
-    //$result = Doctrine :: getTable('Employee')->findOneBy(array('mnoUid' => $this->uid));
-    echo 'After query';
-    echo("Result is " . var_dump($result));
+    $result = $q->execute("SELECT emp_number from hs_hr_employee WHERE mno_uid = '$this->uid'")->fetch();
     
     if ($result && $result['emp_number']) {
       return $result['emp_number'];
@@ -220,16 +210,9 @@ class MnoSsoUser extends MnoSsoBaseUser
    */
   protected function getLocalIdByEmail()
   {
-    $result = null;
-    echo 'in getLocalIdByUid <br/><br/>';
+
     $q = Doctrine_Manager::getInstance()->getCurrentConnection();
-    echo 'after currentconnection';
-    try {
-      $result = $q->execute("SELECT emp_number from hs_hr_employee WHERE emp_work_email = '$this->email'")->fetch();
-    } catch (Exception $e) {
-      echo $e;
-    }
-    //$result = Doctrine :: getTable('Employee')->findOneBy(array('emp_work_email' => $this->email));
+    $result = $q->execute("SELECT emp_number from hs_hr_employee WHERE emp_work_email = '$this->email'")->fetch();
     
     if ($result && $result['emp_number']) {
       return $result['emp_number'];

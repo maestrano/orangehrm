@@ -13,9 +13,6 @@ require PHP_SAML_DIR . 'Response.php';
 require PHP_SAML_DIR . 'Settings.php';
 require PHP_SAML_DIR . 'XmlSec.php';
 
-define('AUTOLOAD_MGT_DIR', MAESTRANO_ROOT . '/lib/autoload-manager/');
-require AUTOLOAD_MGT_DIR . 'autoloadManager.php';
-
 //-----------------------------------------------
 // Require Maestrano library
 //-----------------------------------------------
