@@ -18,11 +18,20 @@ error_reporting(0);
 
 require MAESTRANO_ROOT . '/app/init/auth.php';
 
-// Reset session completely to avoid garbage (undeclared classes)
+// Destroy session completely to avoid garbage (undeclared classes)
+// but keep previous url if defined
 session_start();
+if(isset($_SESSION['mno_previous_url'])) {
+	$previous_url = $_SESSION['mno_previous_url'];
+}
 session_unset();
 session_destroy();
+
+// Restart session and inject previous url if defined
 session_start();
+if(isset($previous_url)) {
+	$_SESSION['mno_previous_url'] = $previous_url;
+}
 
 // Get Maestrano Service
 $maestrano = MaestranoService::getInstance();
