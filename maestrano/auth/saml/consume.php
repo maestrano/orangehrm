@@ -18,6 +18,10 @@ error_reporting(0);
 
 require MAESTRANO_ROOT . '/app/init/auth.php';
 
+// Reset session completely to avoid garbage (undeclared classes)
+session_start();
+session_unset();
+session_destroy();
 session_start();
 
 // Get Maestrano Service
