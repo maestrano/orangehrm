@@ -73,7 +73,7 @@ class HomePageDao extends BaseDao {
                         ->leftJoin('p.Module m')
                         ->whereIn('p.user_role_id', $userRoleIds)
                         ->andWhere('m.name = ?', $moduleName)
-                        ->orderBy('p.priority DESC, p.id DESC');
+                        ->orderBy('p.priority DESC, p.user_role_id ASC, p.id DESC');
 
                 return $query->execute();
             }
