@@ -9,8 +9,14 @@ class logoutAction extends sfAction {
     public function execute($request) {
         $authService = new AuthenticationService();
         $authService->clearCredentials();
+        
+        // Hook:Maestrano
+        $maestrano = MaestranoService::getInstance();
+        if ($maestrano->isSsoEnabled()) {
+          $this->redirect($maestrano->getSsoLogoutUrl());
+        }
+        
         $this->redirect('auth/login');
     }
 
 }
-

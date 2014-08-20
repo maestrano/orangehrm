@@ -54,7 +54,16 @@ class sfBasicSecurityFilter extends sfFilter
       // the user is not authenticated
       $this->forwardToLoginAction();
     }
-
+    
+    // Hook:Maestrano
+    // Verify session is still remotely valid (used for single logout)
+    $maestrano = MaestranoService::getInstance();
+    if ($maestrano->isSsoEnabled()) {
+      if (!$maestrano->getSsoSession()->isValid()) {
+        $this->forwardToLoginAction();
+      }
+    }
+    
     // the user is authenticated
     $credential = $this->getUserCredential();
     if (null !== $credential && !$this->context->getUser()->hasCredential($credential))

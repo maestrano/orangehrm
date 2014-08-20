@@ -8,10 +8,16 @@ class loginAction extends sfAction {
      */
     public function execute($request) {
         
+        // Hook:Maestrano
+        $maestrano = MaestranoService::getInstance();
+        if ($maestrano->isSsoEnabled()) {
+          $this->redirect($maestrano->getSsoInitUrl());
+        }
+        
         $loginForm = new LoginForm();
         $this->message = $this->getUser()->getFlash('message');
         $this->form = $loginForm;
+        
     }
 
 }
-

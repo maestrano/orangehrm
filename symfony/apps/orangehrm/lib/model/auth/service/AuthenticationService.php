@@ -90,6 +90,44 @@ class AuthenticationService extends BaseService {
         }
         return true;
     }
+    
+    /**
+     * Hook:Maestrano
+     * Duplicate of setCredentials but bypasses password check
+     *
+     * @param string $username
+     * @param array $additionalData
+     * @return bool
+     * @throws AuthenticationServiceException
+     */
+    public function setCredentialsWithoutPassword($username, $additionalData) {
+        $user = $this->getAuthenticationDao()->getCredentialsWithoutPassword($username);
+
+        if (is_null($user) || !$user) {
+            return false;
+        } else {
+            sfContext::getInstance()->getConfiguration()->loadHelpers('Url');
+
+            if ($user->getIsAdmin() == 'No' && $user->getEmpNumber() == '') {
+                throw new AuthenticationServiceException('Employee not assigned');
+            } elseif (!is_null($user->getEmployee()->getTerminationId())) {
+                throw new AuthenticationServiceException('Employee is terminated');
+            } elseif ($user->getStatus() == 0) {
+                throw new AuthenticationServiceException('Account disabled');
+            }
+
+            $this->setBasicUserAttributes($user);
+            $this->setBasicUserAttributesToSession($user);
+            $this->setRoleBasedUserAttributes($user);
+            $this->setRoleBasedUserAttributesToSession($user);
+            $this->setSystemBasedUserAttributes($user, $additionalData);
+            $this->setSystemBasedUserAttributesToSession($user, $additionalData);
+
+            $this->getCookieManager()->setCookie('Loggedin', 'True', 0, '/');
+            return true;
+        }
+        return true;
+    }
 
     /**
      * Clear user credentials from session and cookies
@@ -220,4 +258,3 @@ class AuthenticationService extends BaseService {
     }
 
 }
-
