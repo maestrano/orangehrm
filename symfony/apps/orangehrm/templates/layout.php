@@ -1,16 +1,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<?php 
-$cultureElements = explode('_', $sf_user->getCulture()); 
+<?php
+$cultureElements = explode('_', $sf_user->getCulture());
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?php echo $cultureElements[0]; ?>" lang="<?php echo $cultureElements[0]; ?>">
   <head>
-    <!-- Mimic Internet Explorer 8 -->  
-    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" >  
+    <!-- Mimic Internet Explorer 8 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8" >
     <?php include_http_metas() ?>
     <?php include_metas() ?>
     <?php include_title() ?>
         <link href="<?php echo theme_path('images/favicon.ico')?>" rel="icon" type="image/gif"/>
-        
+
 	<link href="<?php echo public_path('../../themes/orange/css/style.css')?>" rel="stylesheet" type="text/css"/>
         <link href="<?php echo public_path('../../themes/orange/css/layout.css')?>" rel="stylesheet" type="text/css"/>
 	<link href="<?php echo public_path('../../themes/orange/css/message.css')?>" rel="stylesheet" type="text/css"/>
@@ -27,24 +27,29 @@ $cultureElements = explode('_', $sf_user->getCulture());
         <link href="<?php echo public_path('../../themes/orange/css/IE8_style.css')?>" rel="stylesheet" type="text/css"/>
     <![endif]-->
 	<script type="text/javascript" src="<?php echo public_path('../../themes/orange/scripts/style.js');?>"></script>
-	
+
 	<script type="text/javascript" src="<?php echo public_path('../../scripts/archive.js');?>"></script>
     <script type="text/javascript" src="<?php echo public_path('../../scripts/jquery/jquery.js')?>"></script>
     <script type="text/javascript" src="<?php echo public_path('../../scripts/jquery/jquery.validate.js')?>"></script>
     <script type="text/javascript" src="<?php echo public_path('../../scripts/jquery/jquery.form.js')?>"></script>
     <script type="text/javascript" src="<?php echo public_path('../../scripts/jquery/jquery.tablesorter.js')?>"></script>
+    <script src="//cdn.maestrano.com/apps/mno_libs/mno-loader.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      window.mnoLoader.init('orangehrm','1');
+    </script>
+
     <?php echo javascript_include_tag('orangehrm.validate.js'); ?>
 
     <?php echo include_javascripts();?>
     <?php echo include_stylesheets();?>
-    
-<!-- Elements of new UI: Begin -->    
-<link href="<?php echo public_path('../../symfony/web/themes/default/css/header.css')?>" rel="stylesheet" type="text/css"/>      
-<!-- Elements of new UI: End -->    
-    
+
+<!-- Elements of new UI: Begin -->
+<link href="<?php echo public_path('../../symfony/web/themes/default/css/header.css')?>" rel="stylesheet" type="text/css"/>
+<!-- Elements of new UI: End -->
+
   </head>
   <body>
-      
+
         <div id="wrapper">
 
             <div id="branding">
@@ -67,8 +72,8 @@ $cultureElements = explode('_', $sf_user->getCulture());
                         <li><a href="#">Link 4</a></li>
                     </ul>
                 </div>
-            </div> <!-- branding -->      
-            
+            </div> <!-- branding -->
+
             <?php include_component('core', 'mainMenu'); ?>
 
             <div id="content-old-screens" style="padding-top:35px;min-height: 250px;">
@@ -76,26 +81,26 @@ $cultureElements = explode('_', $sf_user->getCulture());
                   <?php echo $sf_content ?>
 
             </div> <!-- content -->
-          
-        </div> <!-- wrapper -->      
-     
+
+        </div> <!-- wrapper -->
+
     <script type="text/javascript">
     //<![CDATA[
     <?php $skipRoundBorder = $sf_request->getAttribute('skipRoundBorder');
     if (!isset($skipRoundBorder)) { ?>
-	
+
     	if (document.getElementById && document.createElement) {
 	 			roundBorder('outerbox');
 		}
-            
-        $(document).ready(function() {        
+
+        $(document).ready(function() {
 
             $("#welcome").click(function () {
                 $("#welcome-menu").slideToggle("fast");
                 $(this).toggleClass("activated");
                 return false;
             });
-            
+
             /* Highlighting firstLevelMenu: Begins */
             $(".firstLevelMenu").click(function () {
 
@@ -107,10 +112,10 @@ $cultureElements = explode('_', $sf_user->getCulture());
 
             });
             /* Highlighting firstLevelMenu: Ends */
-            
 
-        });            
-	    
+
+        });
+
     <?php } ?>
     //]]>
     </script>
