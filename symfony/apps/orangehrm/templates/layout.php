@@ -33,10 +33,6 @@ $cultureElements = explode('_', $sf_user->getCulture());
     <script type="text/javascript" src="<?php echo public_path('../../scripts/jquery/jquery.validate.js')?>"></script>
     <script type="text/javascript" src="<?php echo public_path('../../scripts/jquery/jquery.form.js')?>"></script>
     <script type="text/javascript" src="<?php echo public_path('../../scripts/jquery/jquery.tablesorter.js')?>"></script>
-    <script src="//cdn.maestrano.com/apps/mno_libs/mno-loader.js" type="text/javascript"></script>
-    <script type="text/javascript">
-      window.mnoLoader.init('orangehrm','1');
-    </script>
 
     <?php echo javascript_include_tag('orangehrm.validate.js'); ?>
 
