@@ -498,5 +498,14 @@ class Employee extends PluginEmployee {
         $state = $this->termination_id == null ? self::STATE_ACTIVE : self::STATE_TERMINATED;
         
         return $state;
-    }    
+    }
+
+    /**
+    * Maestrano hook
+    */
+    public function save() {
+      // Push to connec!
+      
+      parent::save();
+    }
 }

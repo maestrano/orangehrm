@@ -8,17 +8,11 @@
 //-----------------------------------------------
 // Define root folder
 //-----------------------------------------------
-define("MAESTRANO_ROOT", realpath(dirname(__FILE__) . '/../../'));
+define("ROOT_PATH", realpath(dirname(__FILE__) . '/../../../'));
 
 error_reporting(0);
 
-require MAESTRANO_ROOT . '/app/init/auth.php';
+require_once(ROOT_PATH . '/vendor/maestrano/maestrano-php/lib/Maestrano.php');
 
-// Get Maestrano Service
-$maestrano = MaestranoService::getInstance();
-
-// Build SAML request and Redirect to IDP
-$authRequest = new OneLogin_Saml_AuthRequest($maestrano->getSettings()->getSamlSettings());
-$url = $authRequest->getRedirectUrl();
-
-header("Location: $url");
+$req = new Maestrano_Saml_Request($_GET);
+header('Location: ' . $req->getRedirectUrl());

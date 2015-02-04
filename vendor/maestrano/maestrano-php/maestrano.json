@@ -1,0 +1,37 @@
+{
+    "environment": "test",
+    "app": {
+        "host": "http://application.maestrano.io"
+    },
+    "api": {
+        "id": "prod_or_sandbox_app_id",
+        "key": "prod_or_sandbox_api_key"
+    },
+    "sso": {
+        "enabled": true,
+        "sloEnabled": true,
+        "idp": "http://application.maestrano.io",
+        "initPath": "/maestrano/auth/saml/init.php",
+        "consumePath": "/maestrano/auth/saml/consume.php",
+        "creationMode": "virtual"
+    },
+    "webhook": {
+        "account": {
+            "groupsPath": "/maestrano/account/groups/:id",
+            "groupUsersPath": "/maestrano/account/groups/:group_id/users/:id"
+        },
+        "connec": {
+            "notifications_path": "/maestrano/connec/notifications",
+            "subscriptions": {
+                "accounts": false,
+                "company": false,
+                "invoices": false,
+                "items": false,
+                "organizations": false,
+                "people": false,
+                "tax_codes": false,
+                "tax_rates": false
+            }
+        }
+    }
+}
