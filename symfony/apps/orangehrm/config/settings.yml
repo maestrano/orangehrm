@@ -5,7 +5,7 @@ prod:
 
 dev:
   .settings:
-    error_reporting:        <?php echo (E_ALL | E_STRICT)."\n" ?>
+    error_reporting:        <?php echo ((E_ALL | E_STRICT)^E_DEPRECATED)."\n" ?>
     web_debug:              true
     cache:                  false
     no_script_name:         false
@@ -13,7 +13,7 @@ dev:
 
 test:
   .settings:
-    error_reporting:        <?php echo ((E_ALL | E_STRICT) ^ E_NOTICE)."\n" ?>
+    error_reporting:        <?php echo ((E_ALL | E_STRICT) ^ (E_NOTICE | E_DEPRECATED))."\n" ?>
     cache:                  false
     web_debug:              false
     no_script_name:         false
@@ -21,7 +21,7 @@ test:
 
 all:
   .settings:
-    # Form security secret (CSRF protection)
+    # NOTE: OrangeHRM uses csrf_secret value stored in hs_hr_config, not the value below.
     csrf_secret:       'kafkasipi3#iadfsakf'     # Unique secret to enable CSRF protection or false to disable
 
     # Output escaping settings
@@ -39,7 +39,7 @@ all:
     i18n:                   true
     default_culture: 		  en    # Default user culture
 
-    enabled_modules:        [default, core, leave, pim, time, attendance, recruitment, recruitmentApply, admin, auth]
+    enabled_modules:        [default, core, leave, pim, time, attendance, recruitment, recruitmentApply, admin, auth, dashboard, performance]
 
     # Charset used for the response
     charset:                utf-8

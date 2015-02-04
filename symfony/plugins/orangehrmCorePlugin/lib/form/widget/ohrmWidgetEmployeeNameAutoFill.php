@@ -173,7 +173,7 @@ EOF
         $hiddenName = $name . '[empId]';
         $hiddenId   = $this->getHiddenFieldId($name);
         
-        return "<input type=\"hidden\" name=\"$hiddenName\" id=\"$hiddenId\" value=\"$value\" />";
+        return "<input type='hidden' name='$hiddenName' id='$hiddenId' value='" . self::escapeOnce($value) . "' />";
         
     }
     
@@ -199,7 +199,7 @@ EOF
         $loadingMethod = $this->getOption('loadingMethod');
         $requiredPermissions = $this->getOption('requiredPermissions');
         
-        if (is_array($employeeList)) {
+        if (is_array($employeeList) || $employeeList instanceof Doctrine_Collection) {
             return $employeeList;
         }
 

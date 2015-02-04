@@ -1,5 +1,5 @@
-<?php
-$version = '3.1.1';
+<?php 
+$version = '3.2.1';
 $prodName = 'OrangeHRM';
 $copyrightYear = date('Y');
 

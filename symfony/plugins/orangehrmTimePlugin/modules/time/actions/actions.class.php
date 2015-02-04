@@ -61,8 +61,13 @@ class timeActions extends sfActions {
         $projectId = $this->getProjectId($activityId);
         $date = $request->getParameter('date');
         $comment = $request->getParameter('comment');
-
-
+        
+        $csrfToken = $request->getParameter('csrfToken');
+        $form = new TimesheetFormToImplementCsrfTokens();
+        if($form->getCSRFToken() != $csrfToken){
+            return sfView::NONE;
+        }
+        
         $employeeId = $request->getParameter('employeeId');
         $dao = new TimesheetDao();
         $timesheetItem = $dao->getTimesheetItemByDateProjectId($timesheetId, $employeeId, $projectId, $activityId, $date);
@@ -158,7 +163,7 @@ class timeActions extends sfActions {
     }
 
     public function executeDeleteRows(sfWebRequest $request) {
-        $form = new DefaultListForm(array(),array(),true);
+        $form = new DefaultListForm();
         
         $employeeId = $request->getParameter("employeeId");
         $timesheetId = $request->getParameter("timesheetId");
