@@ -53,7 +53,6 @@ class MnoSsoUser extends MnoSsoBaseUser
   {
     if ($this->local_id && $this->uid) {
         $service = new AuthenticationService();
-        $service->setAuthenticationDao(new AuthenticationDao());
         $success = $service->setCredentialsWithoutPassword($this->uid, array());
         return $success;
     } else {

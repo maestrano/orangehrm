@@ -6,6 +6,17 @@ class AuthenticationService extends BaseService {
     private $cookieManager;
 
     /**
+    *
+    * @return AuthenticationDao
+    */
+    public function getAuthenticationDao() {
+      if (!isset($this->authenticationDao)) {
+        $this->authenticationDao = new AuthenticationDao();
+      }
+      return $this->authenticationDao;
+    }
+
+    /**
      *
      * @param SystemUserService $dao 
      */
