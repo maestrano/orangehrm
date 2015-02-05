@@ -16,12 +16,13 @@ if (!is_file(ROOT_PATH . '/lib/confs/Conf.php')) {
     exit();
 }
 
-require_once(dirname(__FILE__).'/../config/ProjectConfiguration.class.php');
-
 // Hook:Maestrano
 // Load Maestrano
-require ROOT_PATH . '/maestrano/app/init/base.php';
-require_once(ROOT_PATH . '/vendor/maestrano/maestrano-php/lib/Maestrano.php');
+require ROOT_PATH . '/vendor/autoload.php';
+// Configure Maestrano API
+Maestrano::configure(ROOT_PATH . '/maestrano.json');
 
+
+require_once(dirname(__FILE__).'/../config/ProjectConfiguration.class.php');
 $configuration = ProjectConfiguration::getApplicationConfiguration('orangehrm', 'prod', false);
 sfContext::createInstance($configuration)->dispatch();

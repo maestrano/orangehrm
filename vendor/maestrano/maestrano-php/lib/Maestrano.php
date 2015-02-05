@@ -59,5 +59,3 @@ require_once(dirname(__FILE__) . '/Maestrano/Account/User.php');
 
 // Connec Client
 require_once(dirname(__FILE__) . '/Maestrano/Connec/Client.php');
-
-Maestrano::configure(dirname(__FILE__) . '../maestrano.json');

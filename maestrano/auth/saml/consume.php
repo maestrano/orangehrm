@@ -1,79 +1,69 @@
 <?php
-/**
- * This controller processes a SAML response and deals with
- * user matching, creation and authentication
- * Upon successful authentication it redirects to the URL 
- * the user was trying to access.
- * Upon failure it redirects to the Maestrano access
- * unauthorized page
- *
- */
+echo "IN CONSUME";
+  define("ROOT_PATH", realpath(dirname(__FILE__) . '/../../../'));
 
-//-----------------------------------------------
-// Define root folder
-//-----------------------------------------------
-define("MAESTRANO_ROOT", realpath(dirname(__FILE__) . '/../../'));
+  error_reporting(0);
 
-error_reporting(0);
+  require ROOT_PATH . '/vendor/autoload.php';
+  require ROOT_PATH . '/maestrano/app/sso/MnoSsoUser.php';
 
-require MAESTRANO_ROOT . '/app/init/auth.php';
+  // Initialize symfony app
+  define('SF_APP_NAME', 'orangehrm');
+  require_once(ROOT_PATH . '/symfony/config/ProjectConfiguration.class.php');
+  $configuration = ProjectConfiguration::getApplicationConfiguration(SF_APP_NAME, 'prod', true);
+  new sfDatabaseManager($configuration);
+  $context = sfContext::createInstance($configuration);
 
-// Destroy session completely to avoid garbage (undeclared classes)
-// but keep previous url if defined
-session_start();
-if(isset($_SESSION['mno_previous_url'])) {
-	$previous_url = $_SESSION['mno_previous_url'];
-}
-session_unset();
-session_destroy();
+  # Configure Maestrano
+  Maestrano::configure(ROOT_PATH . "/maestrano.json");
 
-// Restart session and inject previous url if defined
-session_start();
-if(isset($previous_url)) {
-	$_SESSION['mno_previous_url'] = $previous_url;
-}
+  session_unset();
+  session_destroy();
+  session_start();
 
-// Get Maestrano Service
-$maestrano = MaestranoService::getInstance();
+  // Build SSO Response using SAMLResponse parameter value sent via
+  // POST request
+  $resp = new Maestrano_Saml_Response($_POST['SAMLResponse']);
+  if ($resp->isValid()) {
+    // Get the user as well as the user group
+    $user = new Maestrano_Sso_User($resp);
+    $group = new Maestrano_Sso_Group($resp);
 
-// Options variable
-if (!isset($opts)) {
-  $opts = array();
-}
-
-// Build SAML response
-$samlResponse = new OneLogin_Saml_Response($maestrano->getSettings()->getSamlSettings(), $_POST['SAMLResponse']);
-
-try {
-    if ($samlResponse->isValid()) {
-        
-        // Get Maestrano User
-        $sso_user = new MnoSsoUser($samlResponse, $_SESSION, $opts);
-        
-        // Try to match the user with a local one
-        $sso_user->matchLocal();
-        
-        // If user was not matched then attempt
-        // to create a new local user
-        if (is_null($sso_user->local_id)) {
-          $sso_user->createLocalUserOrDenyAccess();
-        }
-        
-        // If user is matched then sign it in
-        // Refuse access otherwise
-        if ($sso_user->local_id) {
-          $sso_user->signIn();
-          header("Location: " . $maestrano->getAfterSsoSignInPath());
-        } else {
-          header("Location: " . $maestrano->getSsoUnauthorizedUrl());
-        }
-    }
-    else {
-        echo 'There was an error during the authentication process.<br/>';
-        echo 'Please try again. If issue persists please contact support@maestrano.com';
-    }
-}
-catch (Exception $e) {
+    // Get Maestrano User
+    $sso_user = new MnoSsoUser($resp);
+    
+    // Find or create the User
+    $sso_user->findOrCreate();
+    
+    $_SESSION["loggedIn"] = true;
+    $_SESSION["firstName"] = $user->getFirstName();
+    $_SESSION["lastName"] = $user->getLastName();
+    
+    // Important - toId() and toEmail() have different behaviour compared to
+    // getId() and getEmail(). In you maestrano configuration file, if your sso > creation_mode 
+    // is set to 'real' then toId() and toEmail() return the actual id and email of the user which
+    // are only unique across users.
+    // If you chose 'virtual' then toId() and toEmail() will return a virtual (or composite) attribute
+    // which is truly unique across users and groups
+    $_SESSION["id"] = $user->toId();
+    $_SESSION["email"] = $user->toEmail();
+    
+    // Store group details
+    $_SESSION["groupName"] = $group->getName();
+    $_SESSION["groupId"] = $group->getId();
+    
+    
+    // Once the user is created/identified, we store the maestrano
+    // session. This session will be used for single logout
+    $mnoSession = new Maestrano_Sso_Session($_SESSION,$user);
+    $mnoSession->save();
+    
+    // Redirect the user to home page
+    header('Location: /');
+    
+  } else {
     echo 'There was an error during the authentication process.<br/>';
     echo 'Please try again. If issue persists please contact support@maestrano.com';
-}
+  }
+  
+?>

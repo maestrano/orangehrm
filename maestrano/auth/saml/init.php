@@ -12,7 +12,8 @@ define("ROOT_PATH", realpath(dirname(__FILE__) . '/../../../'));
 
 error_reporting(0);
 
-require_once(ROOT_PATH . '/vendor/maestrano/maestrano-php/lib/Maestrano.php');
+require ROOT_PATH . '/vendor/autoload.php';
+Maestrano::configure(ROOT_PATH . "/maestrano.json");
 
 $req = new Maestrano_Saml_Request($_GET);
 header('Location: ' . $req->getRedirectUrl());

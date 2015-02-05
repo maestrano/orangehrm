@@ -32,7 +32,7 @@ class Maestrano
     if (is_string($settings)) {
       return self::configure(json_decode(file_get_contents($settings),true));
     }
-    
+
     //-------------------------------
     // App Config
     //-------------------------------
@@ -81,11 +81,11 @@ class Maestrano
     } else {
       self::$config['sso.slo_enabled'] = true;
     }
-    
-    if (array_key_exists('sso', $settings) && array_key_exists('idm', $settings['sso'])) {
-      self::$config['sso.idm'] = $settings['sso']['idm'];
+
+    if (array_key_exists('sso', $settings) && array_key_exists('idp', $settings['sso'])) {
+      self::$config['sso.idp'] = $settings['sso']['idp'];
     } else {
-      self::$config['sso.idm'] = self::$config['app.host'];
+      self::$config['sso.idp'] = self::$config['app.host'];
     }
     
     if (array_key_exists('sso', $settings) && array_key_exists('init_path', $settings['sso'])) {

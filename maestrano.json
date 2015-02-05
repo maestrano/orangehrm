@@ -1,18 +1,19 @@
 {
     "environment": "test",
     "app": {
-        "host": "http://application.maestrano.io"
+        "host": "http://orangehrm.app.dev.maestrano.io"
     },
     "api": {
         "id": "prod_or_sandbox_app_id",
-        "key": "prod_or_sandbox_api_key"
+        "key": "prod_or_sandbox_api_key",
+        "base": ""
     },
     "sso": {
         "enabled": true,
-        "sloEnabled": true,
+        "slo_enabled": true,
         "idp": "http://application.maestrano.io",
-        "initPath": "/maestrano/auth/saml/init.php",
-        "consumePath": "/maestrano/auth/saml/consume.php",
+        "init_path": "/maestrano/auth/saml/init.php",
+        "consume_path": "/maestrano/auth/saml/consume.php",
         "creationMode": "virtual"
     },
     "webhook": {

@@ -57,9 +57,9 @@ class sfBasicSecurityFilter extends sfFilter
     
     // Hook:Maestrano
     // Verify session is still remotely valid (used for single logout)
-    $maestrano = MaestranoService::getInstance();
-    if ($maestrano->isSsoEnabled()) {
-      if (!$maestrano->getSsoSession()->isValid()) {
+    if (Maestrano::sso()->isSsoEnabled()) {
+      $mnoSession = new Maestrano_Sso_Session($_SESSION);
+      if (!$mnoSession->isValid()) {
         $this->forwardToLoginAction();
       }
     }
