@@ -1,11 +1,6 @@
 <?php
-echo "IN CONSUME";
-  define("ROOT_PATH", realpath(dirname(__FILE__) . '/../../../'));
 
-  error_reporting(0);
-
-  require ROOT_PATH . '/vendor/autoload.php';
-  require ROOT_PATH . '/maestrano/app/sso/MnoSsoUser.php';
+  require_once '../../app/init.php';
 
   // Initialize symfony app
   define('SF_APP_NAME', 'orangehrm');
@@ -14,9 +9,7 @@ echo "IN CONSUME";
   new sfDatabaseManager($configuration);
   $context = sfContext::createInstance($configuration);
 
-  # Configure Maestrano
-  Maestrano::configure(ROOT_PATH . "/maestrano.json");
-
+  # Reset session
   session_unset();
   session_destroy();
   session_start();

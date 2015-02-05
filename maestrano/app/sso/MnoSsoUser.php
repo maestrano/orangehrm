@@ -16,19 +16,26 @@ class MnoSsoUser extends Maestrano_Sso_User
    * @var SystemUserForm
    */
   public $_sysuser = null;
-
+  
+  /**
+  * Find or Create a user based on the SAML response parameter and Add the user to current session
+  */
   public function findOrCreate() {
+    // Find user by uid or email
     $local_id = $this->getLocalIdByUid();
+    if($local_id == null) { $local_id = getLocalIdByEmail(); }
+    
     if ($local_id) {
-      # User found, load it
+      // User found, load it
       $this->local_id = $local_id;
       $this->syncLocalDetails();
     } else {
-      # New user, create it
+      // New user, create it
       $this->local_id = $this->createLocalUser();
       $this->setLocalUid();
     }
 
+    // Add user to current session
     $this->setInSession();
   }
 
@@ -139,7 +146,6 @@ class MnoSsoUser extends Maestrano_Sso_User
   
   /**
    * Set all 'soft' details on the user (like name, surname, email)
-   * Implementing this method is optional.
    *
    * @return boolean whether the user was synced or not
    */

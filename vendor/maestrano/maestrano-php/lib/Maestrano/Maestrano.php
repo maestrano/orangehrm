@@ -105,7 +105,22 @@ class Maestrano
     } else {
       self::$config['sso.creation_mode'] = 'real';
     }
+
+    //-------------------------------
+    // Connec Config
+    //-------------------------------
+    if (array_key_exists('connec', $settings) && array_key_exists('host', $settings['connec'])) {
+      self::$config['connec.host'] = $settings['connec']['host'];
+    } else {
+      self::$config['connec.host'] = 'http://api-sandbox.maestrano.io';
+    }
     
+    if (array_key_exists('connec', $settings) && array_key_exists('base_path', $settings['connec'])) {
+      self::$config['connec.base_path'] = $settings['connec']['base_path'];
+    } else {
+      self::$config['connec.base_path'] = '/connec/api/v2';
+    }
+
     //-------------------------------
     // Webhook Config - Account
     //-------------------------------
@@ -196,8 +211,7 @@ class Maestrano
          'lang'             => Maestrano::param('api.lang'),
          'lang_version'     => Maestrano::param('api.lang_version'),
          'host'             => Maestrano::param('api.host'),
-         'base'             => Maestrano::param('api.base'),
-         
+         'base'             => Maestrano::param('api.base')
        ),
        'sso' => array(
          'enabled'          => Maestrano::param('sso.enabled'),
@@ -209,16 +223,20 @@ class Maestrano
          'idp'              => Maestrano::param('sso.idp'),
          'name_id_format'   => Maestrano::param('sso.name_id_format'),
          'x509_fingerprint' => Maestrano::param('sso.x509_fingerprint'),
-         'x509_certificate' => Maestrano::param('sso.x509_certificate'),
+         'x509_certificate' => Maestrano::param('sso.x509_certificate')
+       ),
+       'connec' => array(
+         'host'             => Maestrano::param('sso.host'),
+         'base_path'        => Maestrano::param('sso.base_path')
        ),
        'webhook' => array(
          'account' => array(
            'groups_path' => Maestrano::param('webhook.account.groups_path'),
-           'group_users_path' => Maestrano::param('webhook.account.group_users_path'),
+           'group_users_path' => Maestrano::param('webhook.account.group_users_path')
          ),
          'connec' => array(
            'notifications_path' => Maestrano::param('webhook.connec.notifications_path'),
-           'subscriptions' => Maestrano::param('webhook.connec.subscriptions'),
+           'subscriptions' => Maestrano::param('webhook.connec.subscriptions')
          )
        )
      );

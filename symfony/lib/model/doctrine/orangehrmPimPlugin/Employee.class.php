@@ -499,13 +499,4 @@ class Employee extends PluginEmployee {
         
         return $state;
     }
-
-    /**
-    * Maestrano hook
-    */
-    public function save() {
-      // Push to connec!
-      
-      parent::save();
-    }
 }

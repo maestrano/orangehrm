@@ -27,6 +27,7 @@ class Maestrano_Connec_Client
    */
   public function get($relativePath, $params = null)
   {
+
     return $this->_curlRequest(
       'GET',
       $this->scopedUrl($relativePath),
