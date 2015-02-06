@@ -17,11 +17,14 @@ if (!is_file(ROOT_PATH . '/lib/confs/Conf.php')) {
 }
 
 // Hook:Maestrano
-// Load Maestrano
+// Load Maestrano Library
 require ROOT_PATH . '/vendor/autoload.php';
 // Configure Maestrano API
 Maestrano::configure(ROOT_PATH . '/maestrano.json');
 
+// Load custom Maestrano configuration
+require_once '../../maestrano/init.php';
+require_once '../../maestrano/connec/init.php';
 
 require_once(dirname(__FILE__).'/../config/ProjectConfiguration.class.php');
 $configuration = ProjectConfiguration::getApplicationConfiguration('orangehrm', 'prod', false);

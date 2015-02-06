@@ -16,11 +16,13 @@ if (file_exists($filepath)) {
   $client = new Maestrano_Connec_Client('orangehrm.app.dev.maestrano.io');
   $msg = $client->get("updates/$timestamp");
   $code = $msg['code'];
+  $body = $msg['body'];
 
   if($code != 200) {
-    error_log("Cannot fetch connec updates code=$code");
+    error_log("Cannot fetch connec updates code=$code, body=$body");
   } else {
-    $result = json_decode($msg['body'], true);
+    error_log("Receive updates body=$body");
+    $result = json_decode($body, true);
 
     // Persist employees
     $employeeMapper = new EmployeeMapper();
