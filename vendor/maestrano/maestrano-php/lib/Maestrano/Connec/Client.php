@@ -27,7 +27,7 @@ class Maestrano_Connec_Client
    */
   public function get($relativePath, $params = null)
   {
-
+error_log("FETCHING URL: " . $this->scopedUrl($relativePath));
     return $this->_curlRequest(
       'GET',
       $this->scopedUrl($relativePath),

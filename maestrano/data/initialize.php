@@ -20,12 +20,11 @@ if (file_exists($filepath)) {
   if($code != 200) {
     error_log("Cannot fetch connec updates code=$code");
   } else {
-    $response = $msg['body'];
-    $result = json_decode($response, true);
+    $result = json_decode($msg['body'], true);
 
     // Persist employees
     $employeeMapper = new EmployeeMapper();
-    $employeeMapper->persistAll($result['Employees']);
+    $employeeMapper->persistAll($result['employees']);
   }
 
   // $status = true;
