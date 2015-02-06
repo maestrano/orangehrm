@@ -115,16 +115,8 @@ class EmployeeService extends BaseService {
      * @todo Change method name to saveEmployee [DONE]
      */
     public function saveEmployee(Employee $employee, $pushToConnec=true) {
-        $employee = $this->getEmployeeDao()->saveEmployee($employee);
-        
-        // Hook:Maestrano
-        $mapper = 'EmployeeMapper';
-        if($pushToConnec && class_exists($mapper)) {
-          $employeeMapper = new $mapper();
-          $employeeMapper->pushToConnec($employee);
-        }
-        
-        return $employee;
+        $this->pushToConnec($employee, $pushToConnec);
+        return $this->getEmployeeDao()->saveEmployee($employee);
     }
 
     /**
@@ -976,6 +968,11 @@ class EmployeeService extends BaseService {
      * 
      */
     public function deleteEmployees($empNumbers) {
+        foreach ($empNumbers as $empNumber) {
+          $employee = $this->getEmployee($empNumber);
+          $this->pushToConnec($employee, false, true);
+        }
+
         return $this->getEmployeeDao()->deleteEmployees($empNumbers);
     }
 
@@ -1262,6 +1259,7 @@ class EmployeeService extends BaseService {
      * @todo rename Entity as EmpBasicsalary to EmpSalary [DONE: Renamed as EmployeeSalary]
      */
     public function saveEmployeeSalary(EmployeeSalary $salary) {
+        $this->pushToConnec($employee, $pushToConnec, false);
         return $this->getEmployeeDao()->saveEmployeeSalary($salary);
     }
 
@@ -1521,12 +1519,7 @@ class EmployeeService extends BaseService {
       $mapper = 'EmployeeMapper';
       if(class_exists($mapper)) {
         $employeeMapper = new $mapper();
-        if($pushToConnec) {
-          $employeeMapper->pushToConnec($employee);
-        }
-        if($delete) {
-          // TODO
-        }
+        $employeeMapper->processLocalUpdate($employee, $pushToConnec, $delete);
       }
     }
 }

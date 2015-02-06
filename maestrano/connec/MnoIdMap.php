@@ -21,8 +21,11 @@ class MnoIdMap {
     return $result;
   }
 
-  public static function deleteMnoIdMap($mno_id, $mno_entity_name) {
-    // TODO
+  public static function deleteMnoIdMap($local_id, $local_entity_name) {
+    $q = Doctrine_Manager::getInstance()->getCurrentConnection();
+    $query = "UPDATE mno_id_map SET deleted_flag = 1 WHERE app_entity_id = ".intval($local_id)." AND app_entity_name = '".strtoupper($local_entity_name)."'";  
+    $result = $q->execute($query);
+    return $result;
   }
 
 }
