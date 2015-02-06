@@ -5,7 +5,7 @@
  *
  */
 
-require_once '../../app/init.php';
+require_once '../../init.php';
 
 $req = new Maestrano_Saml_Request($_GET);
 header('Location: ' . $req->getRedirectUrl());

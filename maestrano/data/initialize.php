@@ -1,24 +1,18 @@
 <?php
 
-require_once '../app/init.php';
-require_once '../connec/EmployeeMapper.php';
-
-// Initialize symfony app
-define('SF_APP_NAME', 'orangehrm');
-require_once(ROOT_PATH . '/symfony/config/ProjectConfiguration.class.php');
-$configuration = ProjectConfiguration::getApplicationConfiguration(SF_APP_NAME, 'prod', true);
-new sfDatabaseManager($configuration);
-$context = sfContext::createInstance($configuration);
+require_once '../init.php';
+require_once '../connec/init.php';
 
 $filepath = '../var/_data_sequence';
 $status = false;
 
 if (file_exists($filepath)) {
+  // Last update timestamp
   $timestamp = trim(file_get_contents($filepath));
   $current_timestamp = round(microtime(true) * 1000);
-  
   if (empty($timestamp)) { $timestamp = 0; } 
 
+  // Fetch updates
   $client = new Maestrano_Connec_Client('orangehrm.app.dev.maestrano.io');
   $msg = $client->get("updates/$timestamp");
   $code = $msg['code'];
@@ -29,12 +23,12 @@ if (file_exists($filepath)) {
     $response = $msg['body'];
     $result = json_decode($response, true);
 
+    // Persist employees
     $employeeMapper = new EmployeeMapper();
-
-    foreach($result['Employees'] as $employee_hash) {
-      $employee = $employeeMapper->hashToEmployee($employee_hash);
-    }
+    $employeeMapper->persistAll($result['Employees']);
   }
+
+  // $status = true;
 }
 
 if ($status) {

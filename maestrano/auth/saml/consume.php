@@ -1,13 +1,6 @@
 <?php
 
-  require_once '../../app/init.php';
-
-  // Initialize symfony app
-  define('SF_APP_NAME', 'orangehrm');
-  require_once(ROOT_PATH . '/symfony/config/ProjectConfiguration.class.php');
-  $configuration = ProjectConfiguration::getApplicationConfiguration(SF_APP_NAME, 'prod', true);
-  new sfDatabaseManager($configuration);
-  $context = sfContext::createInstance($configuration);
+  require_once '../../init.php';
 
   # Reset session
   session_unset();

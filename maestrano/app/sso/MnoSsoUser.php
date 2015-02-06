@@ -23,7 +23,7 @@ class MnoSsoUser extends Maestrano_Sso_User
   public function findOrCreate() {
     // Find user by uid or email
     $local_id = $this->getLocalIdByUid();
-    if($local_id == null) { $local_id = getLocalIdByEmail(); }
+    if($local_id == null) { $local_id = $this->getLocalIdByEmail(); }
     
     if ($local_id) {
       // User found, load it

@@ -2,6 +2,9 @@
 
 require_once 'MnoIdMap.php';
 
+/**
+* Map Connec Employee representation to/from OrangeHRM Employee
+*/
 class EmployeeMapper {
   private $_employeeService;
 
@@ -9,6 +12,14 @@ class EmployeeMapper {
     $this->_employeeService = new EmployeeService();
   }
 
+  // Persist a list of Connec Employee hashes as OrangeHRM Employees
+  public function persistAll($employees_hash) {
+    foreach($employees_hash as $employee_hash) {
+      $this->hashToEmployee($employee_hash);
+    }
+  }
+
+  // Map a Connec Employee hash to an OrangeHRM Employee
   public function hashToEmployee($employee_hash, $persist=true) {
     $employee = null;
     $map_record = false;
