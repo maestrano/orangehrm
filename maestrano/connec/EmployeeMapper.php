@@ -57,7 +57,8 @@ class EmployeeMapper {
     if(!is_null($employee_hash['first_name'])) { $employee->firstName = $employee_hash['first_name']; }
     if(!is_null($employee_hash['last_name'])) { $employee->lastName = $employee_hash['last_name']; }
     if(!is_null($employee_hash['birth_date'])) { $employee->emp_birthday = DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $employee_hash['birth_date'])->format("Y-m-d"); }
-    if(!is_null($employee_hash['gender'])) { $employee->emp_gender = ($employee_hash['gender'] == 'M' ? 1 : 2); } // Male: 1, Female: 2
+    if(!is_null($employee_hash['gender'])) { $employee->emp_gender = ($employee_hash['gender'] == 'M' ? Employee::GENDER_MALE : Employee::GENDER_FEMALE); }
+    if(!is_null($employee_hash['social_security_number'])) { $employee->ssn = $employee_hash['social_security_number']; }
 
     // Address
     if(!is_null($employee_hash['address']) && !is_null($employee_hash['address']['billing'])) {
@@ -87,6 +88,9 @@ class EmployeeMapper {
       $employee->jobTitle = $this->findOrCreateJobTitleByName($employee_hash['job_title']);
     }
 
+    // Job details
+    if(!is_null($employee_hash['hired_date'])) { $employee->joined_date = DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $employee_hash['hired_date'])->format("Y-m-d"); }
+
     // TODO
 
     // Save and map the Employee
@@ -115,13 +119,14 @@ class EmployeeMapper {
 
   public function pushToConnec($employee) {
     $employee_hash = array();
-    
+
     // Map Employee to Connec hash
     if(!is_null($employee->employeeId)) { $employee_hash['employee_id'] = $employee->employeeId; }
     if(!is_null($employee->firstName)) { $employee_hash['first_name'] = $employee->firstName; }
     if(!is_null($employee->lastName)) { $employee_hash['last_name'] = $employee->lastName; }
     if(!is_null($employee->emp_birthday)) { $employee_hash['birth_date'] = DateTime::createFromFormat('Y-m-d', $employee->emp_birthday)->format("Y-m-d\TH:i:s\Z"); }
-    if(!is_null($employee->emp_gender)) { $employee_hash['gender'] = ($employee->emp_gender) == 1 ? 'M' : 'F'; }
+    if(!is_null($employee->emp_gender)) { $employee_hash['gender'] = ($employee->emp_gender) == Employee::GENDER_MALE ? 'M' : 'F'; }
+    if(!is_null($employee->ssn)) { $employee_hash['social_security_number'] = $employee->ssn; }
 
     // Address
     if(!is_null($employee->street1)) { $employee_hash['address']['billing']['line1'] = $employee->street1; }
@@ -142,6 +147,7 @@ class EmployeeMapper {
 
     // Job title
     if(!is_null($employee->jobTitle)) { $employee_hash['job_title'] = $employee->jobTitle->jobTitleName; }
+    if(!is_null($employee->joined_date)) { $employee_hash['hired_date'] = DateTime::createFromFormat('Y-m-d', $employee->joined_date)->format("Y-m-d\TH:i:s\Z"); }
 
     // TODO
 

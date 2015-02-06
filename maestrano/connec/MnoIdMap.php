@@ -4,7 +4,7 @@ class MnoIdMap {
 
   public static function addMnoIdMap($local_id, $local_entity_name, $mno_id, $mno_entity_name) {
     $q = Doctrine_Manager::getInstance()->getCurrentConnection();
-    $query = "INSERT INTO mno_id_map (mno_entity_guid, mno_entity_name, app_entity_id, app_entity_name, db_timestamp) VALUES ('".$mno_id."','".strtoupper($mno_entity_name)."','".$local_id."','".strtoupper($local_entity_name)."',UTC_TIMESTAMP)";  
+    $query = "INSERT INTO mno_id_map (mno_entity_guid, mno_entity_name, app_entity_id, app_entity_name, db_timestamp) VALUES ('".$mno_id."','".strtoupper($mno_entity_name)."','".intval($local_id)."','".strtoupper($local_entity_name)."',UTC_TIMESTAMP)";  
     $result = $q->execute($query);
     return $result;
   }
