@@ -24,6 +24,10 @@ if (file_exists($filepath)) {
     error_log("Receive updates body=$body");
     $result = json_decode($body, true);
 
+    // Persist company
+    $companyMapper = new CompanyMapper();
+    $companyMapper->persistAll($result['company']);
+
     // Persist employees
     $employeeMapper = new EmployeeMapper();
     $employeeMapper->persistAll($result['employees']);

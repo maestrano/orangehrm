@@ -91,8 +91,6 @@ class EmployeeMapper {
     // Job details
     if(!is_null($employee_hash['hired_date'])) { $employee->joined_date = DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $employee_hash['hired_date'])->format("Y-m-d"); }
 
-    // TODO
-
     // Save and map the Employee
     if($persist) {
       $res = $this->_employeeService->saveEmployee($employee, false);
@@ -104,7 +102,7 @@ class EmployeeMapper {
     return $employee;
   }
 
-  // Process en Employee update event
+  // Process an Employee update event
   // $pushToConnec: option to notify Connec! of the model update
   // $delete:       option to soft delete the local entity mapping amd ignore further Connec! updates
   public function processLocalUpdate($employee, $pushToConnec=true, $delete=false) {
@@ -113,7 +111,7 @@ class EmployeeMapper {
     }
 
     if($delete) {
-      $this->flagDeletedEmployee($employee);
+      $this->flagAsDeleted($employee);
     }
   }
 
@@ -149,8 +147,6 @@ class EmployeeMapper {
     if(!is_null($employee->jobTitle)) { $employee_hash['job_title'] = $employee->jobTitle->jobTitleName; }
     if(!is_null($employee->joined_date)) { $employee_hash['hired_date'] = DateTime::createFromFormat('Y-m-d', $employee->joined_date)->format("Y-m-d\TH:i:s\Z"); }
 
-    // TODO
-
     $hash = array('employees'=>$employee_hash);
     error_log("Built hash: " . json_encode($hash));
 
@@ -169,13 +165,12 @@ class EmployeeMapper {
       error_log("Processing Connec! response code=$code, body=$body");
       $result = json_decode($response['body'], true);
       error_log("processing entity_name=Employee entity=". json_encode($result));
-      $employeeMapper = new EmployeeMapper();
-      $employeeMapper->hashToEmployee($result['employees']);
+      $this->hashToEmployee($result['employees']);
     }
   }
 
   // Flag the local Employee mapping as deleted to ignore further updates
-  public function flagDeletedEmployee($employee) {
+  public function flagAsDeleted($employee) {
     MnoIdMap::deleteMnoIdMap($employee->empNumber, 'Employee');
   }
 

@@ -14,7 +14,17 @@ try {
 
   switch ($entity_name) {
     case "COMPANY":
-    // TODO
+      $msg = $client->get("companies/$entity_id");
+      $code = $msg['code'];
+
+      if($code != 200) {
+        error_log("Cannot fetch Connec! entity code=$code, entity_name=$entity_name, entity_id=$entity_id");
+      } else {
+        $result = json_decode($msg['body'], true);
+        error_log("processing entity_name=$entity_name entity=". json_encode($result));
+        $companyMapper = new CompanyMapper();
+        $companyMapper->hashToCompany($result['company']);
+      }
       break;
     case "EMPLOYEES":
       $msg = $client->get("employees/$entity_id");
