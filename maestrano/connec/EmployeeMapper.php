@@ -1,57 +1,47 @@
 <?php
 
+require_once 'BaseMapper.php';
 require_once 'MnoIdMap.php';
 
 /**
 * Map Connec Employee representation to/from OrangeHRM Employee
 */
-class EmployeeMapper {
-  private $_connec_client;
+class EmployeeMapper extends BaseMapper {
   private $_employeeService;
+  private $_jobTitleService;
 
   public function __construct() {
+    parent::__construct();
+
+    $this->connec_entity_name = 'Employee';
+    $this->local_entity_name = 'Employee';
+    $this->connec_resource_name = 'employees';
+    $this->connec_resource_endpoint = 'employees';
+
     $this->_employeeService = new EmployeeService();
     $this->_jobTitleService = new JobTitleService();
-    $this->_connec_client = new Maestrano_Connec_Client('orangehrm.app.dev.maestrano.io');
   }
 
-  // Persist a list of Connec Employee hashes as OrangeHRM Employees
-  public function persistAll($employees_hash) {
-    foreach($employees_hash as $employee_hash) {
-      $this->hashToEmployee($employee_hash);
+  // Return the Employee local id
+  protected function getId($employee) {
+    return $employee->empNumber;
+  }
+
+  // Return a local Employee by id
+  protected function loadModelById($local_id) {
+    return $this->_employeeService->getEmployee($local_id);
+  }
+
+  // Match an EMployee by employee id
+  protected function matchLocalModel($employee_hash) {
+    if($employee_hash['employee_id'] != null) {
+      $employee = $this->_employeeService->getEmployeeByEmployeeId($employee_hash['employee_id']);
+      if($employee != null) { return $employee; }
     }
   }
 
-  // Map a Connec Employee hash to an OrangeHRM Employee
-  public function hashToEmployee($employee_hash, $persist=true) {
-    $employee = null;
-    $map_record = false;
-
-    // Find local Employee if exists
-    $mno_id = $employee_hash['id'];
-    $mno_id_map = MnoIdMap::findMnoIdMapByMnoIdAndEntityName($mno_id, 'Employee');
-    if($mno_id_map) {
-      // Ignore updates for deleted Employees
-      if($mno_id_map['deleted_flag'] == 1) {
-        return null;
-      }
-      // Load the locally mapped Employee
-      $employee = $this->_employeeService->getEmployee($mno_id_map['app_entity_id']);
-    } else {
-      // Find Employee by unique employeeId
-      if($employee_hash['employee_id'] != null) {
-        $employee = $this->_employeeService->getEmployeeByEmployeeId($employee_hash['employee_id']);
-        // Link existing record if found
-        if($employee != null) { $map_record = true; }
-      }
-    }
-
-    // Create a new Employee if none found
-    if($employee == null) {
-      $employee = new Employee();
-      $map_record = true;
-    }
-
+  // Map the Connec resource attributes onto the OrangeHRM Employee
+  protected function mapConnecResourceToModel($employee_hash, $employee) {
     // Map hash attributes to Employee
     if(!is_null($employee_hash['employee_id'])) { $employee->employeeId = $employee_hash['employee_id']; }
     if(!is_null($employee_hash['first_name'])) { $employee->firstName = $employee_hash['first_name']; }
@@ -90,32 +80,10 @@ class EmployeeMapper {
 
     // Job details
     if(!is_null($employee_hash['hired_date'])) { $employee->joined_date = DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $employee_hash['hired_date'])->format("Y-m-d"); }
-
-    // Save and map the Employee
-    if($persist) {
-      $res = $this->_employeeService->saveEmployee($employee, false);
-      if($map_record) {
-        MnoIdMap::addMnoIdMap($employee->empNumber, 'Employee', $employee_hash['id'], 'Employee');
-      }
-    }
-
-    return $employee;
   }
 
-  // Process an Employee update event
-  // $pushToConnec: option to notify Connec! of the model update
-  // $delete:       option to soft delete the local entity mapping amd ignore further Connec! updates
-  public function processLocalUpdate($employee, $pushToConnec=true, $delete=false) {
-    if($pushToConnec) {
-      $this->pushToConnec($employee);
-    }
-
-    if($delete) {
-      $this->flagAsDeleted($employee);
-    }
-  }
-
-  public function pushToConnec($employee) {
+  // Map the OrangeHRM Employee to a Connec resource hash
+  protected function mapModelToConnecResource($employee) {
     $employee_hash = array();
 
     // Map Employee to Connec hash
@@ -147,31 +115,12 @@ class EmployeeMapper {
     if(!is_null($employee->jobTitle)) { $employee_hash['job_title'] = $employee->jobTitle->jobTitleName; }
     if(!is_null($employee->joined_date)) { $employee_hash['hired_date'] = DateTime::createFromFormat('Y-m-d', $employee->joined_date)->format("Y-m-d\TH:i:s\Z"); }
 
-    $hash = array('employees'=>$employee_hash);
-    error_log("Built hash: " . json_encode($hash));
-
-    $mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($employee->empNumber, 'Employee');
-    if($mno_id_map) {
-      $response = $this->_connec_client->put("employees/" . $mno_id_map['mno_entity_guid'], $hash);
-    } else {
-      $response = $this->_connec_client->post("employees", $hash);
-    }
-
-    $code = $response['code'];
-    $body = $response['body'];
-    if($code >= 300) {
-      error_log("Cannot push to Connec! entity_name=Employee, code=$code, body=$body");
-    } else {
-      error_log("Processing Connec! response code=$code, body=$body");
-      $result = json_decode($response['body'], true);
-      error_log("processing entity_name=Employee entity=". json_encode($result));
-      $this->hashToEmployee($result['employees']);
-    }
+    return $employee_hash;
   }
 
-  // Flag the local Employee mapping as deleted to ignore further updates
-  public function flagAsDeleted($employee) {
-    MnoIdMap::deleteMnoIdMap($employee->empNumber, 'Employee');
+  // Persist the OrangeHRM Employee
+  protected function persistLocalModel($employee) {
+    $this->_employeeService->saveEmployee($employee, false);
   }
 
   // Find or Create an OrangeHRM JobTitle object by its name

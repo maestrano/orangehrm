@@ -44,9 +44,13 @@
     $mnoSession = new Maestrano_Sso_Session($_SESSION,$user);
     $mnoSession->save();
     
-    // Redirect the user to home page
-    header('Location: /');
-    
+    // Redirect the user to previous or home page
+error_log("CONSUME PREVIOUS URL: " . $_SESSION['mno_previous_uri']);
+    if(isset($_SESSION['mno_previous_uri'])) {
+      header('Location: ' . $_SESSION['mno_previous_uri']);
+    } else {
+      header('Location: /');
+    }
   } else {
     echo 'There was an error during the authentication process.<br/>';
     echo 'Please try again. If issue persists please contact support@maestrano.com';

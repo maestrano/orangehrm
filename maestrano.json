@@ -14,7 +14,7 @@
         "idp": "http://application.maestrano.io",
         "init_path": "/maestrano/auth/saml/init.php",
         "consume_path": "/maestrano/auth/saml/consume.php",
-        "creationMode": "virtual"
+        "creation_mode": "virtual"
     },
     "connec": {
       "host": "http://connec.maestrano.io",

@@ -1,35 +1,42 @@
 <?php
 
+require_once 'BaseMapper.php';
 require_once 'MnoIdMap.php';
 
 /**
 * Map Connec Company representation to/from OrangeHRM Organization
 */
-class CompanyMapper {
-  private $_connec_client;
+class CompanyMapper extends BaseMapper {
   private $_organizationService;
 
   public function __construct() {
+    parent::__construct();
+
+    $this->connec_entity_name = 'Company';
+    $this->local_entity_name = 'Organization';
+    $this->connec_resource_name = 'companies';
+    $this->connec_resource_endpoint = 'company';
+
     $this->_organizationService = new OrganizationService();
-    $this->_connec_client = new Maestrano_Connec_Client('orangehrm.app.dev.maestrano.io');
   }
 
-  // Persist a list of Connec Company hashes as OrangeHRM Organizations
-  // Only one company should be returned
-  public function persistAll($companies_hash) {
-    foreach($companies_hash as $company_hash) {
-      $this->hashToCompany($company_hash);
-    }
+  // Single resource, id does not matter
+  public function getId($employee) {
+    return 0;
   }
 
-  // Map a Connec Company hash to an OrangeHRM Organization
-  public function hashToCompany($company_hash, $persist=true) {
-    // Retrieve Organization resource
-    $organization = $this->_organizationService->getOrganizationGeneralInformation();
-    if(is_null($organization)) {
-      $this->organization = new Organization();
-    }
+  // Does not match by id
+  public function loadModelById($local_id) {
+    return null;
+  }
 
+  // Return the default Organization
+  protected function matchLocalModel($employee_hash) {
+    return $this->_organizationService->getOrganizationGeneralInformation();
+  }
+
+  // Map the Connec resource attributes onto the OrangeHRM Organization
+  protected function mapConnecResourceToModel($company_hash, $organization) {
     // Map hash attributes to Organization
     if(!is_null($company_hash['name'])) { $organization->name = $company_hash['name']; }
     if(!is_null($company_hash['tax_number'])) { $organization->registraionNumber = $company_hash['tax_number']; }
@@ -55,29 +62,10 @@ class CompanyMapper {
     if(!is_null($company_hash['email'])) {
       if(!is_null($company_hash['email']['address'])) { $organization->email = $company_hash['email']['address']; }
     }
-
-    // Save and map the Organization
-    if($persist) {
-      $organization->save();
-    }
-
-    return $organization;
   }
 
-  // Process an Company update event
-  // $pushToConnec: option to notify Connec! of the model update
-  // $delete:       option to soft delete the local entity mapping amd ignore further Connec! updates
-  public function processLocalUpdate($organization, $pushToConnec=true, $delete=false) {
-    if($pushToConnec) {
-      $this->pushToConnec($organization);
-    }
-
-    if($delete) {
-      $this->flagAsDeleted($organization);
-    }
-  }
-
-  public function pushToConnec($organization) {
+  // Map the OrangeHRM Organization to a Connec resource hash
+  protected function mapModelToConnecResource($organization) {
     $company_hash = array();
 
     // Map Organization to Connec hash
@@ -100,24 +88,11 @@ class CompanyMapper {
     // Email
     if(!is_null($organization->email)) { $company_hash['email']['address'] = $organization->email; }
 
-    // Push to Connec!
-    $hash = array('company'=>$company_hash);
-    error_log("Built hash: " . json_encode($hash));
-    $response = $this->_connec_client->post("companies", $hash);
-
-    // Process response
-    $code = $response['code'];
-    $body = $response['body'];
-    if($code >= 300) {
-      error_log("Cannot push to Connec! entity_name=Company, code=$code, body=$body");
-    } else {
-      error_log("Processing Connec! response code=$code, body=$body");
-      $result = json_decode($response['body'], true);
-      error_log("processing entity_name=Company entity=". json_encode($result));
-      $this->hashToCompany($result['company']);
-    }
+    return $company_hash;
   }
 
-  public function flagAsDeleted($organization) {
+  // Persist the OrangeHRM Organization
+  protected function persistLocalModel($organization) {
+    $organization->save();
   }
 }
