@@ -1,6 +1,6 @@
 <?php
 
-define("ROOT_PATH", realpath(dirname(__FILE__) . '/../'));
+if (!defined('ROOT_PATH')) { define('ROOT_PATH', dirname(__FILE__) . '/../'); }
 
 // Include Maestrano required libraries
 require_once ROOT_PATH . '/vendor/autoload.php';
