@@ -150,6 +150,14 @@ class ProjectForm extends BaseForm {
         $project->setDescription($this->getValue('description'));
         $project->setIsDeleted(Project::ACTIVE_PROJECT);
         $project->save();
+
+        // Hook:Maestrano
+        $mapper = 'ProjectMapper';
+        if(class_exists($mapper)) {
+          $projectMapper = new $mapper();
+          $projectMapper->processLocalUpdate($project);
+        }
+
         return $project->getProjectId();
     }
 

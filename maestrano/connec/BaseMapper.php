@@ -51,6 +51,41 @@ abstract class BaseMapper {
     return null;
   }
 
+  public function getConnecResourceName() {
+    return $this->connec_resource_name;
+  }
+
+  // Load a local Model by its Connec! id. If it does not exist locally, it is fetched from Connec! first
+  public function loadModelByConnecId($entity_id) {
+    error_log("load local model by connec id entity_name=$this->connec_entity_name, entity_id=$entity_id");
+
+    $mno_id_map = MnoIdMap::findMnoIdMapByMnoIdAndEntityName($entity_id, $this->connec_entity_name);
+    if(!$mno_id_map) {
+      // Entity does not exist locally, fetch it from Connec!
+      return $this->fetchConnecResource($entity_id);
+    } else {
+      // Load existing entity
+      return $this->loadModelById($mno_id_map['app_entity_id']);
+    }
+  }
+
+  // Fetch and persist a Connec! resounce by id
+  public function fetchConnecResource($entity_id) {
+    error_log("fetch connec resource entity_name=$this->connec_entity_name, entity_id=$entity_id");
+
+    $msg = $this->_connec_client->get("$this->connec_resource_endpoint/$entity_id");
+    $code = $msg['code'];
+
+    if($code != 200) {
+      error_log("cannot fetch Connec! entity code=$code, entity_name=$this->connec_entity_name, entity_id=$entity_id");
+    } else {
+      $result = json_decode($msg['body'], true);
+      error_log("processing entity_name=$this->connec_entity_name entity=". json_encode($result));
+      return $this->saveConnecResource($result[$this->connec_resource_name]);
+    }
+    return false;
+  }
+
   // Persist a list of Connec Resources as OrangeHRM Models
   public function persistAll($resources_hash) {
     foreach($resources_hash as $resource_hash) {
@@ -175,5 +210,16 @@ abstract class BaseMapper {
     $local_id = $this->getId($model);
     error_log("flag as deleted entity=$this->connec_entity_name, local_id=$local_id");
     MnoIdMap::deleteMnoIdMap($local_id, $this->local_entity_name);
+  }
+
+  // Dynamically find mappers
+  public static function getMappers() {
+    $mappers = array();
+    foreach(get_declared_classes() as $class) {
+      if(is_subclass_of($class, 'BaseMapper')) {
+        $mappers[] = $class;
+      }
+    }
+    return $mappers;
   }
 }

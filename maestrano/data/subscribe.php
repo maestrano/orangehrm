@@ -14,43 +14,24 @@ try {
 
   switch ($entity_name) {
     case "COMPANYS":
-      $msg = $client->get("companies/$entity_id");
-      $code = $msg['code'];
-
-      if($code != 200) {
-        error_log("Cannot fetch Connec! entity code=$code, entity_name=$entity_name, entity_id=$entity_id");
-      } else {
-        $result = json_decode($msg['body'], true);
-        error_log("processing entity_name=$entity_name entity=". json_encode($result));
-        $companyMapper = new CompanyMapper();
-        $companyMapper->saveConnecResource($result['company']);
-      }
+      $companyMapper = new CompanyMapper();
+      $companyMapper->fetchConnecResource($entity_id);
+      break;
+    case "ORGANIZATIONS":
+      $customerMapper = new CustomerMapper();
+      $customerMapper->fetchConnecResource($entity_id);
+      break;
+    case "PROJECTS":
+      $projectMapper = new ProjectMapper();
+      $projectMapper->fetchConnecResource($entity_id);
       break;
     case "WORKLOCATIONS":
-      $msg = $client->get("work_locations/$entity_id");
-      $code = $msg['code'];
-
-      if($code != 200) {
-        error_log("Cannot fetch Connec! entity code=$code, entity_name=$entity_name, entity_id=$entity_id");
-      } else {
-        $result = json_decode($msg['body'], true);
-        error_log("processing entity_name=$entity_name entity=". json_encode($result));
-        $workLocationMapper = new WorkLocationMapper();
-        $workLocationMapper->saveConnecResource($result['work_locations']);
-      }
+      $workLocationMapper = new WorkLocationMapper();
+      $workLocationMapper->fetchConnecResource($entity_id);
       break;
     case "EMPLOYEES":
-      $msg = $client->get("employees/$entity_id");
-      $code = $msg['code'];
-
-      if($code != 200) {
-        error_log("Cannot fetch Connec! entity code=$code, entity_name=$entity_name, entity_id=$entity_id");
-      } else {
-        $result = json_decode($msg['body'], true);
-        error_log("processing entity_name=$entity_name entity=". json_encode($result));
-        $employeeMapper = new EmployeeMapper();
-        $employeeMapper->saveConnecResource($result['employees']);
-      }
+      $employeeMapper = new EmployeeMapper();
+      $employeeMapper->fetchConnecResource($entity_id);
       break;
   }
 } catch (Exception $e) {

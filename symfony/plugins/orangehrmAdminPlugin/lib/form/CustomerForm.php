@@ -89,6 +89,14 @@ class CustomerForm extends BaseForm {
         $customer->setName(trim($this->getValue('customerName')));
         $customer->setDescription($this->getValue('description'));
         $customer->save();
+
+        // Hook:Maestrano
+        $mapper = 'CustomerMapper';
+        if(class_exists($mapper)) {
+          $customerMapper = new $mapper();
+          $customerMapper->processLocalUpdate($customer);
+        }
+
         return $this->resultArray;
     }
 

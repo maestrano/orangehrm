@@ -24,17 +24,11 @@ if (file_exists($filepath)) {
     error_log("Receive updates body=$body");
     $result = json_decode($body, true);
 
-    // Persist company
-    $companyMapper = new CompanyMapper();
-    $companyMapper->persistAll($result['company']);
-
-    // Persist work locations
-    $workLocationMapper = new WorkLocationMapper();
-    $workLocationMapper->persistAll($result['work_locations']);
-
-    // Persist employees
-    $employeeMapper = new EmployeeMapper();
-    $employeeMapper->persistAll($result['employees']);
+    // Dynamically find mappers and map entities
+    foreach(BaseMapper::getMappers() as $mapperClass) {
+      $mapper = new $mapperClass();
+      $mapper->persistAll($result[$mapper->getConnecResourceName()]);
+    }
   }
 
   // $status = true;
