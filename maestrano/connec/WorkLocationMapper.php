@@ -86,7 +86,7 @@ class WorkLocationMapper extends BaseMapper {
   }
 
   // Persist the OrangeHRM WorkLocation
-  protected function persistLocalModel($workLocation) {
+  protected function persistLocalModel($workLocation, $resource_hash) {
     $workLocation->save();
   }
 }

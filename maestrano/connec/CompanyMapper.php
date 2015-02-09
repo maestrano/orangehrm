@@ -94,7 +94,7 @@ class CompanyMapper extends BaseMapper {
   }
 
   // Persist the OrangeHRM Organization
-  protected function persistLocalModel($organization) {
+  protected function persistLocalModel($organization, $resource_hash) {
     $organization->save();
   }
 }

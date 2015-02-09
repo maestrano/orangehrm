@@ -50,7 +50,7 @@ class CustomerMapper extends BaseMapper {
   }
 
   // Persist the OrangeHRM Customer
-  protected function persistLocalModel($customer) {
+  protected function persistLocalModel($customer, $resource_hash) {
     $customer->save();
   }
 }

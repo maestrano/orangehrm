@@ -43,6 +43,17 @@ class ProjectMapper extends BaseMapper {
       $project->Customer = $customer;
       $project->setIsDeleted(Project::ACTIVE_PROJECT);
     }
+
+    // Map Project Activities
+    if(!is_null($project_hash['tasks'])) {
+      $projectActivityMapper = new ProjectActivityMapper();
+      foreach ($project_hash['tasks'] as $task_hash) {
+        // Find or create project activity without saving it
+        $activity = $this->findMatchingProjectActivity($project, $task_hash['name']);
+        $activity = $projectActivityMapper->saveConnecResource($task_hash, false, $activity);
+        $project->ProjectActivity->add($activity);
+      }
+    }
   }
 
   // Map the OrangeHRM Project to a Connec resource hash
@@ -61,11 +72,38 @@ class ProjectMapper extends BaseMapper {
       }
     }
 
+    // Map Project Activities
+    if(!is_null($project->ProjectActivity)) {
+      $project_hash['tasks'] = array();
+      $projectActivityMapper = new ProjectActivityMapper();
+      foreach ($project->ProjectActivity as $projectActivity) {
+        $task_hash = $projectActivityMapper->mapModelToConnecResource($projectActivity);
+        $project_hash['tasks'][] = $task_hash;
+      }
+    }
+
     return $project_hash;
   }
 
   // Persist the OrangeHRM Project
-  protected function persistLocalModel($project) {
+  protected function persistLocalModel($project, $resource_hash) {
     $project->save();
+
+    // Map Project Activities IDs
+    if(!is_null($project->ProjectActivity)) {
+      $projectActivityMapper = new ProjectActivityMapper();
+      foreach ($project->ProjectActivity as $i => $projectActivity) {
+        $projectActivityMapper->findOrCreateIdMap($resource_hash['tasks'][$i], $projectActivity);
+      }
+    }
+  }
+
+  // Find a ProjectActivity by name (unique inside a project)
+  private function findMatchingProjectActivity($project, $activity_name) {
+    $project_activities = $this->_projectService->getActivityListByProjectId($this->getId($project));
+    foreach ($project_activities as $project_activity) {
+      if($project_activity->name == $activity_name) { return $project_activity; }
+    }
+    return null; 
   }
 }

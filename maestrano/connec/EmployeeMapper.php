@@ -119,7 +119,7 @@ class EmployeeMapper extends BaseMapper {
   }
 
   // Persist the OrangeHRM Employee
-  protected function persistLocalModel($employee) {
+  protected function persistLocalModel($employee, $resource_hash) {
     $this->_employeeService->saveEmployee($employee, false);
   }
 

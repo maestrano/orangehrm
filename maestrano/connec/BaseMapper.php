@@ -42,8 +42,8 @@ abstract class BaseMapper {
   abstract protected function mapModelToConnecResource($model);
 
   // Overwrite me!
-  // Persist the OrangeHRM model and returns its local id
-  abstract protected function persistLocalModel($model);
+  // Persist the OrangeHRM model
+  abstract protected function persistLocalModel($modell, $resource_hash);
 
   // Overwrite me!
   // Optional: Match a local Model from hash attributes
@@ -115,17 +115,23 @@ abstract class BaseMapper {
 
     // Save and map the Model id to the Connec resource id
     if($persist) {
-      $this->persistLocalModel($model);
-      $local_id = $this->getId($model);
-
-      $mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($local_id, $this->local_entity_name);
-      if(!$mno_id_map) {
-        error_log("map connec resource entity=$this->connec_entity_name, id=" . $resource_hash['id'] . ", local_id=$local_id");
-        MnoIdMap::addMnoIdMap($local_id, $this->local_entity_name, $resource_hash['id'], $this->connec_entity_name);
-      }
+      $this->persistLocalModel($model, $resource_hash);
+      $this->findOrCreateIdMap($resource_hash, $model);
     }
 
     return $model;
+  }
+
+  // Map a Connec Resource to an OrangeHRM Model
+  public function findOrCreateIdMap($resource_hash, $model) {
+    $local_id = $this->getId($model);
+    $mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($local_id, $this->local_entity_name);
+    if(!$mno_id_map) {
+      error_log("map connec resource entity=$this->connec_entity_name, id=" . $resource_hash['id'] . ", local_id=$local_id");
+      return MnoIdMap::addMnoIdMap($local_id, $this->local_entity_name, $resource_hash['id'], $this->connec_entity_name);
+    }
+
+    return $mno_id_map;
   }
 
   // Process a Model update event
@@ -197,11 +203,12 @@ abstract class BaseMapper {
     $body = $response['body'];
     if($code >= 300) {
       error_log("Cannot push to Connec! entity_name=$this->local_entity_name, code=$code, body=$body");
+      return false;
     } else {
       error_log("Processing Connec! response code=$code, body=$body");
       $result = json_decode($response['body'], true);
       error_log("processing entity_name=$this->local_entity_name entity=". json_encode($result));
-      $this->saveConnecResource($result[$this->connec_resource_name], true, $model);
+      return $this->saveConnecResource($result[$this->connec_resource_name], true, $model);
     }
   }
 
