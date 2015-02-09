@@ -26,6 +26,19 @@ try {
         $companyMapper->saveConnecResource($result['company']);
       }
       break;
+    case "WORKLOCATIONS":
+      $msg = $client->get("work_locations/$entity_id");
+      $code = $msg['code'];
+
+      if($code != 200) {
+        error_log("Cannot fetch Connec! entity code=$code, entity_name=$entity_name, entity_id=$entity_id");
+      } else {
+        $result = json_decode($msg['body'], true);
+        error_log("processing entity_name=$entity_name entity=". json_encode($result));
+        $workLocationMapper = new WorkLocationMapper();
+        $workLocationMapper->saveConnecResource($result['work_locations']);
+      }
+      break;
     case "EMPLOYEES":
       $msg = $client->get("employees/$entity_id");
       $code = $msg['code'];

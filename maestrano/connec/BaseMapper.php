@@ -54,7 +54,11 @@ abstract class BaseMapper {
   // Persist a list of Connec Resources as OrangeHRM Models
   public function persistAll($resources_hash) {
     foreach($resources_hash as $resource_hash) {
-      $this->saveConnecResource($resource_hash);
+      try {
+        $this->saveConnecResource($resource_hash);
+      } catch (Exception $e) {
+        error_log("Error when processing entity=".$this->connec_entity_name.", id=".$resource_hash['id'].", message=" . $e->getMessage());
+      }
     }
   }
 

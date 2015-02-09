@@ -28,6 +28,10 @@ if (file_exists($filepath)) {
     $companyMapper = new CompanyMapper();
     $companyMapper->persistAll($result['company']);
 
+    // Persist work locations
+    $workLocationMapper = new WorkLocationMapper();
+    $workLocationMapper->persistAll($result['work_locations']);
+
     // Persist employees
     $employeeMapper = new EmployeeMapper();
     $employeeMapper->persistAll($result['employees']);

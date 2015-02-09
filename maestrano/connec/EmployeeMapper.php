@@ -61,10 +61,10 @@ class EmployeeMapper extends BaseMapper {
     }
 
     // Phone
-    if(!is_null($employee_hash['telephone'])) {
-      if(!is_null($employee_hash['telephone']['landline'])) { $employee->emp_hm_telephone = $employee_hash['telephone']['landline']; }
-      if(!is_null($employee_hash['telephone']['landline2'])) { $employee->emp_work_telephone = $employee_hash['telephone']['landline2']; }
-      if(!is_null($employee_hash['telephone']['mobile'])) { $employee->emp_mobile = $employee_hash['telephone']['mobile']; }
+    if(!is_null($employee_hash['phone'])) {
+      if(!is_null($employee_hash['phone']['landline'])) { $employee->emp_hm_telephone = $employee_hash['phone']['landline']; }
+      if(!is_null($employee_hash['phone']['landline2'])) { $employee->emp_work_telephone = $employee_hash['phone']['landline2']; }
+      if(!is_null($employee_hash['phone']['mobile'])) { $employee->emp_mobile = $employee_hash['phone']['mobile']; }
     }
 
     // Email
@@ -103,9 +103,9 @@ class EmployeeMapper extends BaseMapper {
     if(!is_null($employee->province)) { $employee_hash['address']['billing']['region'] = $employee->province; }
 
     // Phone
-    if(!is_null($employee->emp_hm_telephone)) { $employee_hash['telephone']['landline'] = $employee->emp_hm_telephone; }
-    if(!is_null($employee->emp_work_telephone)) { $employee_hash['telephone']['landline2'] = $employee->emp_work_telephone; }
-    if(!is_null($employee->emp_mobile)) { $employee_hash['telephone']['mobile'] = $employee->emp_mobile; }
+    if(!is_null($employee->emp_hm_telephone)) { $employee_hash['phone']['landline'] = $employee->emp_hm_telephone; }
+    if(!is_null($employee->emp_work_telephone)) { $employee_hash['phone']['landline2'] = $employee->emp_work_telephone; }
+    if(!is_null($employee->emp_mobile)) { $employee_hash['phone']['mobile'] = $employee->emp_mobile; }
 
     // Email
     if(!is_null($employee->emp_work_email)) { $employee_hash['email']['address'] = $employee->emp_work_email; }
