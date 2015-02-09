@@ -14,7 +14,7 @@ class CompanyMapper extends BaseMapper {
 
     $this->connec_entity_name = 'Company';
     $this->local_entity_name = 'Organization';
-    $this->connec_resource_name = 'companies';
+    $this->connec_resource_name = 'company';
     $this->connec_resource_endpoint = 'company';
 
     $this->_organizationService = new OrganizationService();
@@ -39,7 +39,8 @@ class CompanyMapper extends BaseMapper {
   protected function mapConnecResourceToModel($company_hash, $organization) {
     // Map hash attributes to Organization
     if(!is_null($company_hash['name'])) { $organization->name = $company_hash['name']; }
-    if(!is_null($company_hash['tax_number'])) { $organization->registraionNumber = $company_hash['tax_number']; }
+    if(!is_null($company_hash['employer_id'])) { $organization->registraionNumber = $company_hash['employer_id']; }
+    if(!is_null($company_hash['tax_number'])) { $organization->taxId = $company_hash['tax_number']; }
     if(!is_null($company_hash['note'])) { $organization->note = $company_hash['note']; }
 
     // Address
@@ -70,7 +71,8 @@ class CompanyMapper extends BaseMapper {
 
     // Map Organization to Connec hash
     if(!is_null($organization->name)) { $company_hash['name'] = $organization->name; }
-    if(!is_null($organization->registraionNumber)) { $company_hash['tax_number'] = $organization->registraionNumber; }
+    if(!is_null($organization->registraionNumber)) { $company_hash['employer_id'] = $organization->registraionNumber; }
+    if(!is_null($organization->taxId)) { $company_hash['tax_number'] = $organization->taxId; }
     if(!is_null($organization->note)) { $company_hash['note'] = $organization->note; }
 
     // Address

@@ -13,7 +13,7 @@ try {
   error_log("Received notification = ". json_encode($notification));
 
   switch ($entity_name) {
-    case "COMPANY":
+    case "COMPANYS":
       $msg = $client->get("companies/$entity_id");
       $code = $msg['code'];
 
@@ -23,7 +23,7 @@ try {
         $result = json_decode($msg['body'], true);
         error_log("processing entity_name=$entity_name entity=". json_encode($result));
         $companyMapper = new CompanyMapper();
-        $companyMapper->hashToCompany($result['company']);
+        $companyMapper->saveConnecResource($result['company']);
       }
       break;
     case "EMPLOYEES":
@@ -36,7 +36,7 @@ try {
         $result = json_decode($msg['body'], true);
         error_log("processing entity_name=$entity_name entity=". json_encode($result));
         $employeeMapper = new EmployeeMapper();
-        $employeeMapper->hashToEmployee($result['employees']);
+        $employeeMapper->saveConnecResource($result['employees']);
       }
       break;
   }
