@@ -115,8 +115,9 @@ class EmployeeService extends BaseService {
      * @todo Change method name to saveEmployee [DONE]
      */
     public function saveEmployee(Employee $employee, $pushToConnec=true) {
+        $employee = $this->getEmployeeDao()->saveEmployee($employee);
         $this->pushToConnec($employee, $pushToConnec);
-        return $this->getEmployeeDao()->saveEmployee($employee);
+        return $employee;
     }
 
     /**
@@ -968,12 +969,12 @@ class EmployeeService extends BaseService {
      * 
      */
     public function deleteEmployees($empNumbers) {
+        $employeeNumbers = $this->getEmployeeDao()->deleteEmployees($empNumbers);
         foreach ($empNumbers as $empNumber) {
           $employee = $this->getEmployee($empNumber);
           $this->pushToConnec($employee, false, true);
         }
-
-        return $this->getEmployeeDao()->deleteEmployees($empNumbers);
+        return $employeeNumbers;
     }
 
     /**
@@ -1259,7 +1260,6 @@ class EmployeeService extends BaseService {
      * @todo rename Entity as EmpBasicsalary to EmpSalary [DONE: Renamed as EmployeeSalary]
      */
     public function saveEmployeeSalary(EmployeeSalary $salary) {
-        $this->pushToConnec($employee, $pushToConnec, false);
         return $this->getEmployeeDao()->saveEmployeeSalary($salary);
     }
 

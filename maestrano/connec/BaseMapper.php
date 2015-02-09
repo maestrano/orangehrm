@@ -59,20 +59,31 @@ abstract class BaseMapper {
   }
 
   // Map a Connec Resource to an OrangeHRM Model
-  public function saveConnecResource($resource_hash, $persist=true) {
+  public function saveConnecResource($resource_hash, $persist=true, $model=null) {
+    error_log("save connec resource entity=$this->connec_entity_name, hash=" . json_encode($resource_hash));
+    
     // Load existing Model or create a new instance
-    $model = $this->findOrInitializeModel($resource_hash);
-    if(is_null($model)) { return null; }
+    if(is_null($model)) {
+      $model = $this->findOrInitializeModel($resource_hash);
+      if(is_null($model)) {
+        error_log("model cannot be initialized and will not be saved");
+        return null;
+      }
+    }
 
     // Update the model attributes
     $this->mapConnecResourceToModel($resource_hash, $model);
 
     // Save and map the Model id to the Connec resource id
     if($persist) {
-      $new_record = $model->isNew();
       $this->persistLocalModel($model);
       $local_id = $this->getId($model);
-      if($new_record) { MnoIdMap::addMnoIdMap($local_id, $this->local_entity_name, $resource_hash['id'], $this->connec_entity_name); }
+
+      $mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($local_id, $this->local_entity_name);
+      if(!$mno_id_map) {
+        error_log("map connec resource entity=$this->connec_entity_name, id=" . $resource_hash['id'] . ", local_id=$local_id");
+        MnoIdMap::addMnoIdMap($local_id, $this->local_entity_name, $resource_hash['id'], $this->connec_entity_name);
+      }
     }
 
     return $model;
@@ -82,6 +93,8 @@ abstract class BaseMapper {
   // $pushToConnec: option to notify Connec! of the model update
   // $delete:       option to soft delete the local entity mapping amd ignore further Connec! updates
   public function processLocalUpdate($model, $pushToConnec=true, $delete=false) {
+    error_log("process local update entity=$this->connec_entity_name, local_id=" . $this->getId($model) . ", pushToConnec=$pushToConnec, delete=$delete");
+    
     if($pushToConnec) {
       $this->pushToConnec($model);
     }
@@ -99,9 +112,14 @@ abstract class BaseMapper {
     $mno_id = $resource_hash['id'];
     $mno_id_map = MnoIdMap::findMnoIdMapByMnoIdAndEntityName($mno_id, $this->connec_entity_name);
     
+    error_log("find or initialize entity=$this->connec_entity_name, mno_id=$mno_id, mno_id_map=" . json_encode($mno_id_map));
+
     if($mno_id_map) {
       // Ignore updates for deleted Models
-      if($mno_id_map['deleted_flag'] == 1) { return null; }
+      if($mno_id_map['deleted_flag'] == 1) {
+        error_log("ignore update for locally deleted entity=$this->connec_entity_name, mno_id=$mno_id");
+        return null;
+      }
       
       // Load the locally mapped Model
       $model = $this->loadModelById($mno_id_map['app_entity_id']);
@@ -121,11 +139,10 @@ abstract class BaseMapper {
     // Transform the Model into a Connec hash
     $resource_hash = $this->mapModelToConnecResource($model);
     $hash = array($this->connec_resource_name => $resource_hash);
-error_log("PUSH HASH  => " . json_encode($resource_hash));
     // Find Connec resource id
     $local_id = $this->getId($model);
     $mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($local_id, $this->local_entity_name);
-error_log("FIND ID FOR $local_id - $this->local_entity_name=> " . json_encode($mno_id_map));
+
     if($mno_id_map) {
       // Update resource
       error_log("updating entity=$this->local_entity_name id=$local_id hash=" . json_encode($hash));
@@ -145,13 +162,14 @@ error_log("FIND ID FOR $local_id - $this->local_entity_name=> " . json_encode($m
       error_log("Processing Connec! response code=$code, body=$body");
       $result = json_decode($response['body'], true);
       error_log("processing entity_name=$this->local_entity_name entity=". json_encode($result));
-      $this->saveConnecResource($result[$this->connec_resource_name]);
+      $this->saveConnecResource($result[$this->connec_resource_name], true, $model);
     }
   }
 
   // Flag the local Model mapping as deleted to ignore further updates
   protected function flagAsDeleted($model) {
     $local_id = $this->getId($model);
+    error_log("flag as deleted entity=$this->connec_entity_name, local_id=$local_id");
     MnoIdMap::deleteMnoIdMap($local_id, $this->local_entity_name);
   }
 }
