@@ -50,26 +50,6 @@ class TimesheetItemMapper extends BaseMapper {
       $timesheetItem->Employee = $employee;
     }
 
-    // Map Project
-    $projectMapper = new ProjectMapper();
-    if(!is_null($time_activity_hash['project_id'])) {
-      $project = $projectMapper->loadModelByConnecId($time_activity_hash['project_id']);
-      $timesheetItem->Project = $project;
-    } else {
-      // Assign default Project if none set
-      $timesheetItem->Project = $projectMapper->defaultProject();
-    }
-
-    // Map Project Activity
-    if(!is_null($time_activity_hash['project_task_id'])) {
-      $projectActivityMapper = new ProjectActivityMapper();
-      $projectActivity = $projectActivityMapper->loadModelByConnecId($time_activity_hash['project_task_id']);
-      $timesheetItem->ProjectActivity = $projectActivity;
-    } else {
-      // Assign default Project Activity if none set
-      $timesheetItem->ProjectActivity = $timesheetItem->Project->ProjectActivity->getFirst();
-    }
-
     // Generate ID if none set
     if(!$timesheetItem->timesheetItemId) {
       $idGenService = new IDGeneratorService();
@@ -99,19 +79,7 @@ class TimesheetItemMapper extends BaseMapper {
       if($mno_id_map) { $time_activity_hash['employee_id'] = $mno_id_map['mno_entity_guid']; }
     }
 
-    // Map Project
-    if(!is_null($timesheetItem->projectId)) {
-      $mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($timesheetItem->projectId, 'Project');
-      if($mno_id_map) { $time_activity_hash['project_id'] = $mno_id_map['mno_entity_guid']; }
-    }
-
-    // Map ProjectActivity
-    if(!is_null($timesheetItem->activityId)) {
-      $mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($timesheetItem->activityId, 'ProjectActivity');
-      if($mno_id_map) { $time_activity_hash['project_activity_id'] = $mno_id_map['mno_entity_guid']; }
-    }
-
-    // Map task id
+    // Map connec id
     $mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($this->getId($timesheetItem), $this->local_entity_name);
     if($mno_id_map) { $time_activity_hash['id'] = $mno_id_map['mno_entity_guid']; }
 

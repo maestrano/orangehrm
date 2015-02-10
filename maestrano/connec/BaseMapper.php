@@ -59,6 +59,8 @@ abstract class BaseMapper {
   public function loadModelByConnecId($entity_id) {
     error_log("load local model by connec id entity_name=$this->connec_entity_name, entity_id=$entity_id");
 
+    if(is_null($entity_id)) { return null; }
+
     $mno_id_map = MnoIdMap::findMnoIdMapByMnoIdAndEntityName($entity_id, $this->connec_entity_name);
     if(!$mno_id_map) {
       // Entity does not exist locally, fetch it from Connec!
@@ -99,7 +101,7 @@ abstract class BaseMapper {
 
   // Map a Connec Resource to an OrangeHRM Model
   public function saveConnecResource($resource_hash, $persist=true, $model=null) {
-    error_log("save connec resource entity=$this->connec_entity_name, hash=" . json_encode($resource_hash));
+    error_log("saveConnecResource entity=$this->connec_entity_name, hash=" . json_encode($resource_hash));
     
     // Load existing Model or create a new instance
     if(is_null($model)) {
@@ -111,7 +113,9 @@ abstract class BaseMapper {
     }
 
     // Update the model attributes
+    error_log("mapConnecResourceToModel entity=$this->connec_entity_name");
     $this->mapConnecResourceToModel($resource_hash, $model);
+error_log("END mapConnecResourceToModel entity=$this->connec_entity_name");
 
     // Save and map the Model id to the Connec resource id
     if($persist) {
@@ -119,12 +123,16 @@ abstract class BaseMapper {
       $this->findOrCreateIdMap($resource_hash, $model);
     }
 
+error_log("END saveConnecResource entity=$this->connec_entity_name, hash=" . json_encode($resource_hash));
+
     return $model;
   }
 
   // Map a Connec Resource to an OrangeHRM Model
   public function findOrCreateIdMap($resource_hash, $model) {
     $local_id = $this->getId($model);
+    if($local_id == 0) { return null; }
+
     $mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($local_id, $this->local_entity_name);
     if(!$mno_id_map) {
       error_log("map connec resource entity=$this->connec_entity_name, id=" . $resource_hash['id'] . ", local_id=$local_id");

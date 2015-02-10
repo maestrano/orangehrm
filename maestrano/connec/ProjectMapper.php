@@ -51,7 +51,7 @@ class ProjectMapper extends BaseMapper {
         // Find or create project activity without saving it
         $activity = $this->findMatchingProjectActivity($project, $task_hash['name']);
         $activity = $projectActivityMapper->saveConnecResource($task_hash, false, $activity);
-        $project->ProjectActivity->add($activity);
+        if($activity->isNew()) { $project->ProjectActivity->add($activity); }
       }
     }
   }
