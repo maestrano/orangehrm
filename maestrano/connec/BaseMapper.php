@@ -115,7 +115,6 @@ abstract class BaseMapper {
     // Update the model attributes
     error_log("mapConnecResourceToModel entity=$this->connec_entity_name");
     $this->mapConnecResourceToModel($resource_hash, $model);
-error_log("END mapConnecResourceToModel entity=$this->connec_entity_name");
 
     // Save and map the Model id to the Connec resource id
     if($persist) {
@@ -123,15 +122,15 @@ error_log("END mapConnecResourceToModel entity=$this->connec_entity_name");
       $this->findOrCreateIdMap($resource_hash, $model);
     }
 
-error_log("END saveConnecResource entity=$this->connec_entity_name, hash=" . json_encode($resource_hash));
-
     return $model;
   }
 
   // Map a Connec Resource to an OrangeHRM Model
   public function findOrCreateIdMap($resource_hash, $model) {
     $local_id = $this->getId($model);
-    if($local_id == 0) { return null; }
+    error_log("findOrCreateIdMap entity=$this->connec_entity_name, local_id=$local_id, entity_id=".$resource_hash['id']);
+    
+    if($local_id == 0 || is_null($resource_hash['id'])) { return null; }
 
     $mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($local_id, $this->local_entity_name);
     if(!$mno_id_map) {

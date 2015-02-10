@@ -71,7 +71,7 @@ class TimesheetMapper extends BaseMapper {
             $timesheetItem->ProjectActivity = $projectActivity;
           } else {
             // Assign default Project Activity if none set
-            $timesheetItem->ProjectActivity = $timesheetItem->Project->ProjectActivity->getFirst();
+            $timesheetItem->ProjectActivity = $projectMapper->defaultProjectActivity("Default Activity " . $time_sheet_line['line_order']);
           }
 
           if($timesheetItem->isNew()) { $timesheet->TimesheetItem->add($timesheetItem); }
@@ -114,7 +114,6 @@ class TimesheetMapper extends BaseMapper {
     // Map Activities => [TimesheetItem] as Connec TimeSheetLines
     if(!is_null($timesheet->TimesheetItem)) {
       $timesheetItemMapper = new TimesheetItemMapper();
-
       $timesheet_hash['time_sheet_lines'] = array();
 
       // Group TimesheetItems by ProjectActivities
@@ -127,7 +126,6 @@ class TimesheetMapper extends BaseMapper {
       // Create a TimeSheetLine per ProjectActivity
       foreach ($activities_items as $activityId => $timesheetItems) {
         $time_sheet_line = array('time_activities' => array());
-        $timesheet_hash['time_sheet_lines'][] = $time_sheet_line;
 
         // Map Employee
         if(!is_null($timesheetItem->employeeId)) {
@@ -152,6 +150,8 @@ class TimesheetMapper extends BaseMapper {
           $time_activity_hash = $timesheetItemMapper->mapModelToConnecResource($timesheetItem);
           $time_sheet_line['time_activities'][] = $time_activity_hash;
         }
+
+        $timesheet_hash['time_sheet_lines'][] = $time_sheet_line;
       }
     }
 
@@ -163,7 +163,7 @@ class TimesheetMapper extends BaseMapper {
 
   // Persist the OrangeHRM Timesheet
   protected function persistLocalModel($timesheet, $timesheet_hash) {
-    $this->_timesheetService->saveTimesheet($timesheet, false);
+    $timesheet = $this->_timesheetService->saveTimesheet($timesheet, false);
 
     // Map TimesheetItem IDs
     $timesheetItemMapper = new TimesheetItemMapper();
@@ -178,9 +178,15 @@ class TimesheetMapper extends BaseMapper {
   // Find a TimesheetItem by ProjectActivity and Date
   private function findMatchingTimeActivity($timesheet, $time_sheet_line, $time_activity_hash) {
     $projectActivityMapper = new ProjectActivityMapper();
+    $projectMapper = new ProjectMapper();
+
+    $projectActivity = $projectActivityMapper->loadModelByConnecId($time_sheet_line['project_task_id']);
+    if(is_null($projectActivity)) {
+      $projectActivity = $projectMapper->defaultProjectActivity("Default Activity " . $time_sheet_line['line_order']);
+    }
+
     foreach ($timesheet->TimesheetItem as $timesheetItem) {
-      $projectActivity = $projectActivityMapper->loadModelByConnecId($time_sheet_line['project_task_id']);
-      if(strtotime($timesheet->endDate) == strtotime($time_activity_hash['transaction_date']) && $timesheetItem->activityId == $projectActivity->activityId) {
+      if(strtotime($timesheetItem->date . "T00:00:00Z") == strtotime($time_activity_hash['transaction_date']) && $timesheetItem->activityId == $projectActivity->activityId) {
         return $timesheetItem;
       }
     }
