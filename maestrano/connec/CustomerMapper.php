@@ -53,4 +53,17 @@ class CustomerMapper extends BaseMapper {
   protected function persistLocalModel($customer, $resource_hash) {
     $customer->save();
   }
+
+  // Find or create a default Customer. Used for Timesheet creation if not Customer/Project is defined
+  public function defaultCustomer() {
+    $customers = $this->_customerService->getAllCustomers();
+    foreach ($customers as $customer) {
+      if($customer->name == 'Default Customer') { return $customer; }
+    }
+    // Create default Customer
+    $customer = new Customer();
+    $customer->name = 'Default Customer';
+    $this->persistLocalModel($customer);
+    return $customer;
+  }
 }

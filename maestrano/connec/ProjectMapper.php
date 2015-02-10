@@ -106,4 +106,31 @@ class ProjectMapper extends BaseMapper {
     }
     return null; 
   }
+
+  // Find or create a default Project. Used for Timesheet creation if not Customer/Project is defined
+  public function defaultProject() {
+    $projects = $this->_projectService->getAllProjects();
+    foreach ($projects as $project) {
+      if($project->name == 'Default Project') { return $project; }
+    }
+    // Create default Project
+    $project = new Project();
+    $project->name = 'Default Project';
+
+    // Assigne to Default Customer
+    $customerMapper = new CustomerMapper();
+    $project->Customer = $customerMapper->defaultCustomer();
+
+    // Create Default Activity
+    $activity = $this->findMatchingProjectActivity($project, 'Default Activity');
+    if($activity == null) {
+      $activity = new ProjectActivity();
+      $activity->Project = $project;
+      $activity->name = 'Default Activity';
+      $project->ProjectActivity->add($activity);
+    }
+
+    $this->persistLocalModel($project);
+    return $project;
+  }
 }

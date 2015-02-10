@@ -31,12 +31,14 @@
                 "company": true,
                 "tax_codes": false,
                 "tax_rates": false,
-                "organizations": false,
+                "organizations": true,
                 "people": false,
                 "accounts": false,
                 "items": false,
                 "invoices": false,
+                "projects": true,
                 "employees": true,
+                "work_locations": true,
                 "time_sheets": true
             }
         }
