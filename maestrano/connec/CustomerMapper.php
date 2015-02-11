@@ -64,6 +64,10 @@ class CustomerMapper extends BaseMapper {
     $customer = new Customer();
     $customer->name = 'Default Customer';
     $this->persistLocalModel($customer);
+
+    // Push to Connec!
+    $this->processLocalUpdate($customer);
+    
     return $customer;
   }
 }

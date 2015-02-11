@@ -22,6 +22,7 @@ abstract class BaseMapper {
   protected $connec_resource_endpoint = 'models';
 
   public function __construct() {
+    // TODO: Parametrize the group_id
     $this->_connec_client = new Maestrano_Connec_Client('orangehrm.app.dev.maestrano.io');
   }
 
@@ -100,29 +101,39 @@ abstract class BaseMapper {
   }
 
   // Map a Connec Resource to an OrangeHRM Model
-  public function saveConnecResource($resource_hash, $persist=true, $model=null) {
+  public function saveConnecResource($resource_hash, $persist=true, $model=null, $retry=true) {
     error_log("saveConnecResource entity=$this->connec_entity_name, hash=" . json_encode($resource_hash));
     
     // Load existing Model or create a new instance
-    if(is_null($model)) {
-      $model = $this->findOrInitializeModel($resource_hash);
+    try {
       if(is_null($model)) {
-        error_log("model cannot be initialized and will not be saved");
-        return null;
+        $model = $this->findOrInitializeModel($resource_hash);
+        if(is_null($model)) {
+          error_log("model cannot be initialized and will not be saved");
+          return null;
+        }
+      }
+
+      // Update the model attributes
+      error_log("mapConnecResourceToModel entity=$this->connec_entity_name");
+      $this->mapConnecResourceToModel($resource_hash, $model);
+
+      // Save and map the Model id to the Connec resource id
+      if($persist) {
+        $this->persistLocalModel($model, $resource_hash);
+        $this->findOrCreateIdMap($resource_hash, $model);
+      }
+
+      return $model;
+    } catch (Exception $e) {
+      error_log("Error when saving Connec resource entity=".$this->connec_entity_name.", error=" . $e->getMessage());
+      if($retry) {
+        // Can fail due to concurrent persists using the same PK, so give it another chance
+        error_log("retrying saveConnecResource entity=$this->connec_entity_name");
+        return $this->saveConnecResource($resource_hash, $persist, $model, false);
       }
     }
-
-    // Update the model attributes
-    error_log("mapConnecResourceToModel entity=$this->connec_entity_name");
-    $this->mapConnecResourceToModel($resource_hash, $model);
-
-    // Save and map the Model id to the Connec resource id
-    if($persist) {
-      $this->persistLocalModel($model, $resource_hash);
-      $this->findOrCreateIdMap($resource_hash, $model);
-    }
-
-    return $model;
+    return null;
   }
 
   // Map a Connec Resource to an OrangeHRM Model
@@ -197,12 +208,14 @@ abstract class BaseMapper {
 
     if($mno_id_map) {
       // Update resource
-      error_log("updating entity=$this->local_entity_name id=$local_id hash=" . json_encode($hash));
-      $response = $this->_connec_client->put($this->connec_resource_endpoint . '/' . $mno_id_map['mno_entity_guid'], $hash);
+      $url = $this->connec_resource_endpoint . '/' . $mno_id_map['mno_entity_guid'];
+      error_log("updating entity=$this->local_entity_name, url=$url, id=$local_id hash=" . json_encode($hash));
+      $response = $this->_connec_client->put($url, $hash);
     } else {
       // Create resource
-      error_log("creating entity=$this->local_entity_name hash=" . json_encode($hash));
-      $response = $this->_connec_client->post($this->connec_resource_endpoint, $hash);
+      $url = $this->connec_resource_endpoint;
+      error_log("creating entity=$this->local_entity_name, url=$url, hash=" . json_encode($hash));
+      $response = $this->_connec_client->post($url, $hash);
     }
 
     // Process Connec response

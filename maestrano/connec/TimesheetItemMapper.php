@@ -36,7 +36,7 @@ class TimesheetItemMapper extends BaseMapper {
   protected function mapConnecResourceToModel($time_activity_hash, $timesheetItem) {
     // Map hash attributes to TimesheetItem
     if(!is_null($time_activity_hash['description'])) { $timesheetItem->comment = $time_activity_hash['description']; }
-    if(!is_null($time_activity_hash['transaction_date'])) { $timesheetItem->date = DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $time_activity_hash['transaction_date'])->format("Y-m-d"); }
+    if(!is_null($time_activity_hash['transaction_date'])) { $timesheetItem->date = $time_activity_hash['transaction_date']; }
     
     $duration = 0;
     if(!is_null($time_activity_hash['hours'])) { $duration += $time_activity_hash['hours'] * 60 * 60; }
@@ -71,7 +71,7 @@ class TimesheetItemMapper extends BaseMapper {
     }
 
     if(!is_null($timesheetItem->comment)) { $time_activity_hash['description'] = $timesheetItem->comment; }
-    if(!is_null($timesheetItem->date)) { $time_activity_hash['transaction_date'] = DateTime::createFromFormat('Y-m-d', $timesheetItem->date)->format("Y-m-d\TH:i:s\Z"); }
+    if(!is_null($timesheetItem->date)) { $time_activity_hash['transaction_date'] = $timesheetItem->date; }
 
     // Map Employee
     if(!is_null($timesheetItem->employeeId)) {
