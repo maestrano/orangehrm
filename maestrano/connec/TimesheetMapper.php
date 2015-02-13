@@ -101,8 +101,8 @@ class TimesheetMapper extends BaseMapper {
       }
     }
 
-    // TODO: Map status
-    $timesheet->state = 'NOT SUBMITTED';
+    // Map status
+    $timesheet->state = $this->statusFromConnec($timesheet_hash['status']);
   }
 
   // Map the OrangeHRM Timesheet to a Connec resource hash
@@ -179,8 +179,8 @@ class TimesheetMapper extends BaseMapper {
       }
     }
 
-    // TODO: Map status
-    $timesheet_hash['status'] = 'ACTIVE';
+    // Map status to Connec!
+    $timesheet_hash['status'] = $this->statusFromConnec($timesheet->state);
 
     return $timesheet_hash;
   }
@@ -225,5 +225,37 @@ class TimesheetMapper extends BaseMapper {
       if($time_activity_hash['transaction_date'] == $date->format("Y-m-d")) { return $time_activity_hash; }
     }
     return null;
+  }
+
+  // Map Connec! TimeSheet status: [DRAFT, SUBMITTED, APPROVED, REJECTED, PROCESSED]
+  private function statusFromConnec($status) {
+    switch($status) {
+      case "DRAFT":
+        return 'NOT SUBMITTED';
+      case "SUBMITTED":
+        return 'SUBMITTED';
+      case "PROCESSED":
+        return 'APPROVED';
+      case "APPROVED":
+        return 'APPROVED';
+      case "REJECTED":
+        return 'REJECTED';
+    }
+    return $status;
+  }
+
+  // Map OrangeHRM TimeSheet status: [NOT SUBMITTED, SUBMITTED, APPROVED, REJECTED]
+  private function statusToConnec($status) {
+    switch($status) {
+      case "NOT SUBMITTED":
+        return 'DRAFT';
+      case "SUBMITTED":
+        return 'SUBMITTED';
+      case "APPROVED":
+        return 'APPROVED';
+      case "REJECTED":
+        return 'REJECTED';
+    }
+    return $status;
   }
 }

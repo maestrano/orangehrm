@@ -51,13 +51,13 @@ class EmployeeMapper extends BaseMapper {
     if(!is_null($employee_hash['social_security_number'])) { $employee->ssn = $employee_hash['social_security_number']; }
 
     // Address
-    if(!is_null($employee_hash['address']) && !is_null($employee_hash['address']['billing'])) {
-      if(!is_null($employee_hash['address']['billing']['line1'])) { $employee->street1 = $employee_hash['address']['billing']['line1']; }
-      if(!is_null($employee_hash['address']['billing']['line2'])) { $employee->street2 = $employee_hash['address']['billing']['line2']; }
-      if(!is_null($employee_hash['address']['billing']['city'])) { $employee->city = $employee_hash['address']['billing']['city']; }
-      if(!is_null($employee_hash['address']['billing']['postal_code'])) { $employee->emp_zipcode = $employee_hash['address']['billing']['postal_code']; }
-      if(!is_null($employee_hash['address']['billing']['country'])) { $employee->country = $employee_hash['address']['billing']['country']; }
-      if(!is_null($employee_hash['address']['billing']['region'])) { $employee->province = $employee_hash['address']['billing']['region']; }
+    if(!is_null($employee_hash['address']) && !is_null($employee_hash['address']['shipping'])) {
+      if(!is_null($employee_hash['address']['shipping']['line1'])) { $employee->street1 = $employee_hash['address']['shipping']['line1']; }
+      if(!is_null($employee_hash['address']['shipping']['line2'])) { $employee->street2 = $employee_hash['address']['shipping']['line2']; }
+      if(!is_null($employee_hash['address']['shipping']['city'])) { $employee->city = $employee_hash['address']['shipping']['city']; }
+      if(!is_null($employee_hash['address']['shipping']['postal_code'])) { $employee->emp_zipcode = $employee_hash['address']['shipping']['postal_code']; }
+      if(!is_null($employee_hash['address']['shipping']['country'])) { $employee->country = $employee_hash['address']['shipping']['country']; }
+      if(!is_null($employee_hash['address']['shipping']['region'])) { $employee->province = $employee_hash['address']['shipping']['region']; }
     }
 
     // Phone
@@ -95,12 +95,12 @@ class EmployeeMapper extends BaseMapper {
     if(!is_null($employee->ssn)) { $employee_hash['social_security_number'] = $employee->ssn; }
 
     // Address
-    if(!is_null($employee->street1)) { $employee_hash['address']['billing']['line1'] = $employee->street1; }
-    if(!is_null($employee->street2)) { $employee_hash['address']['billing']['line2'] = $employee->street2; }
-    if(!is_null($employee->city)) { $employee_hash['address']['billing']['city'] = $employee->city; }
-    if(!is_null($employee->emp_zipcode)) { $employee_hash['address']['billing']['postal_code'] = $employee->emp_zipcode; }
-    if(!is_null($employee->country)) { $employee_hash['address']['billing']['country'] = $employee->country; }
-    if(!is_null($employee->province)) { $employee_hash['address']['billing']['region'] = $employee->province; }
+    if(!is_null($employee->street1)) { $employee_hash['address']['shipping']['line1'] = $employee->street1; }
+    if(!is_null($employee->street2)) { $employee_hash['address']['shipping']['line2'] = $employee->street2; }
+    if(!is_null($employee->city)) { $employee_hash['address']['shipping']['city'] = $employee->city; }
+    if(!is_null($employee->emp_zipcode)) { $employee_hash['address']['shipping']['postal_code'] = $employee->emp_zipcode; }
+    if(!is_null($employee->country)) { $employee_hash['address']['shipping']['country'] = $employee->country; }
+    if(!is_null($employee->province)) { $employee_hash['address']['shipping']['region'] = $employee->province; }
 
     // Phone
     if(!is_null($employee->emp_hm_telephone)) { $employee_hash['phone']['landline'] = $employee->emp_hm_telephone; }
