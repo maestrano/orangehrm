@@ -93,6 +93,15 @@ class EmployeeMapper extends BaseMapper {
         $employee->locations->add($work_location);
       }
     }
+
+    // Employee Salary
+    if(!is_null($employee_hash['employee_salaries'])) {
+      $employeeSalaryMapper = new EmployeeSalaryMapper();
+      foreach ($employee_hash['employee_salaries'] as $employee_salary_hash) {
+        $employee_salary = $employeeSalaryMapper->saveConnecResource($employee_salary_hash, false);
+        if(!is_null($employee_salary) && $employee_salary->isNew()) { $employee->salary->add($employee_salary); }
+      }
+    }
   }
 
   // Map the OrangeHRM Employee to a Connec resource hash
@@ -144,6 +153,14 @@ class EmployeeMapper extends BaseMapper {
   // Persist the OrangeHRM Employee
   protected function persistLocalModel($employee, $resource_hash) {
     $this->_employeeService->saveEmployee($employee, false);
+
+    // Map Employee Salary IDs
+    $employeeSalaryMapper = new EmployeeSalaryMapper();
+    foreach ($resource_hash['employee_salaries'] as $index => $employee_salary_hash) {
+      $salary_array = $employee->salary->getData();
+      $employeeSalary = $salary_array[$index];
+      $employeeSalaryMapper->findOrCreateIdMap($employee_salary_hash, $employeeSalary);
+    }
   }
 
   // Find or Create an OrangeHRM JobTitle object by its name
