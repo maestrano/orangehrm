@@ -52,6 +52,12 @@ abstract class BaseMapper {
     return null;
   }
 
+  // Overwrite me!
+  // Optional: Check the hash is valid for mapping
+  protected function validate($resource_hash) {
+    return true;
+  }
+
   public function getConnecResourceName() {
     return $this->connec_resource_name;
   }
@@ -103,6 +109,8 @@ abstract class BaseMapper {
   // Map a Connec Resource to an OrangeHRM Model
   public function saveConnecResource($resource_hash, $persist=true, $model=null, $retry=true) {
     error_log("saveConnecResource entity=$this->connec_entity_name, hash=" . json_encode($resource_hash));
+
+    if(!$this->validate($resource_hash)) { return null; }
     
     // Load existing Model or create a new instance
     try {

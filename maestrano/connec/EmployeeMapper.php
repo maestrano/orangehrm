@@ -56,7 +56,11 @@ class EmployeeMapper extends BaseMapper {
       if(!is_null($employee_hash['address']['shipping']['line2'])) { $employee->street2 = $employee_hash['address']['shipping']['line2']; }
       if(!is_null($employee_hash['address']['shipping']['city'])) { $employee->city = $employee_hash['address']['shipping']['city']; }
       if(!is_null($employee_hash['address']['shipping']['postal_code'])) { $employee->emp_zipcode = $employee_hash['address']['shipping']['postal_code']; }
-      if(!is_null($employee_hash['address']['shipping']['country'])) { $employee->country = $employee_hash['address']['shipping']['country']; }
+      if(!is_null($employee_hash['address']['shipping']['country'])) {
+        $employee->country = $employee_hash['address']['shipping']['country'];
+      } else {
+        $employee->country = 'United States';
+      }
       if(!is_null($employee_hash['address']['shipping']['region'])) { $employee->province = $employee_hash['address']['shipping']['region']; }
     }
 
@@ -80,6 +84,24 @@ class EmployeeMapper extends BaseMapper {
 
     // Job details
     if(!is_null($employee_hash['hired_date'])) { $employee->joined_date = $employee_hash['hired_date']; }
+
+    // Work Locations
+    if(!is_null($employee_hash['work_locations'])) {
+      $workLocationMapper = new WorkLocationMapper();
+      foreach ($employee_hash['work_locations'] as $work_location_hash) {
+        $work_location = $workLocationMapper->loadModelByConnecId($work_location_hash['id']);
+        $employee->locations->add($work_location);
+      }
+    }
+
+    // Employee Salary
+    if(!is_null($employee_hash['employee_salaries'])) {
+      $employeeSalaryMapper = new EmployeeSalaryMapper();
+      foreach ($employee_hash['employee_salaries'] as $employee_salary_hash) {
+        $employee_salary = $employeeSalaryMapper->saveConnecResource($employee_salary_hash, false);
+        if(!is_null($employee_salary) && $employee_salary->isNew()) { $employee->salary->add($employee_salary); }
+      }
+    }
   }
 
   // Map the OrangeHRM Employee to a Connec resource hash
@@ -115,12 +137,30 @@ class EmployeeMapper extends BaseMapper {
     if(!is_null($employee->jobTitle)) { $employee_hash['job_title'] = $employee->jobTitle->jobTitleName; }
     if(!is_null($employee->joined_date)) { $employee_hash['hired_date'] = $employee->joined_date; }
 
+    // Work Locations
+    if(!is_null($employee->locations)) {
+      $workLocationMapper = new WorkLocationMapper();
+      $employee_hash['work_locations'] = array();
+      foreach ($employee->locations as $location) {
+        $mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($location->id, 'WorkLocation');
+        if($mno_id_map) { $employee_hash['work_locations'][] = $mno_id_map['mno_entity_guid']; }
+      }
+    }
+
     return $employee_hash;
   }
 
   // Persist the OrangeHRM Employee
   protected function persistLocalModel($employee, $resource_hash) {
     $this->_employeeService->saveEmployee($employee, false);
+
+    // Map Employee Salary IDs
+    $employeeSalaryMapper = new EmployeeSalaryMapper();
+    foreach ($resource_hash['employee_salaries'] as $index => $employee_salary_hash) {
+      $salary_array = $employee->salary->getData();
+      $employeeSalary = $salary_array[$index];
+      $employeeSalaryMapper->findOrCreateIdMap($employee_salary_hash, $employeeSalary);
+    }
   }
 
   // Find or Create an OrangeHRM JobTitle object by its name
