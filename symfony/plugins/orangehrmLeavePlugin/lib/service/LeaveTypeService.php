@@ -40,10 +40,10 @@ class LeaveTypeService extends BaseService {
      * @param LeaveType $leaveType
      * @return boolean
      */
-    public function saveLeaveType(LeaveType $leaveType) {
+    public function saveLeaveType(LeaveType $leaveType, $pushToConnec=true) {
 
         $this->getLeaveTypeDao()->saveLeaveType($leaveType);
-
+        $this->pushToConnec($leaveType, $pushToConnec);
         return true;
     }
 
@@ -123,6 +123,18 @@ class LeaveTypeService extends BaseService {
         }
 
         return $deletedTypeNamesArray;
+    }
+
+    /**
+    * Push a LeaveType object to Connec!
+    */
+    private function pushToConnec($leave_type, $pushToConnec=true, $delete=false) {
+      // Hook:Maestrano
+      $mapper = 'PayItemMapper';
+      if(class_exists($mapper)) {
+        $leaveTypeMapper = new $mapper();
+        $leaveTypeMapper->processLocalUpdate($leave_type, $pushToConnec, $delete);
+      }
     }
 
 }

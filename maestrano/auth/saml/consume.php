@@ -45,7 +45,6 @@
     $mnoSession->save();
     
     // Redirect the user to previous or home page
-error_log("CONSUME PREVIOUS URL: " . $_SESSION['mno_previous_uri']);
     if(isset($_SESSION['mno_previous_uri'])) {
       header('Location: ' . $_SESSION['mno_previous_uri']);
     } else {

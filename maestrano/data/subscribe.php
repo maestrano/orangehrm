@@ -29,6 +29,10 @@ try {
       $workLocationMapper = new WorkLocationMapper();
       $workLocationMapper->fetchConnecResource($entity_id);
       break;
+    case "PAYITEMS":
+      $payItemMapper = new PayItemMapper();
+      $payItemMapper->fetchConnecResource($entity_id);
+      break;
     case "EMPLOYEES":
       $employeeMapper = new EmployeeMapper();
       $employeeMapper->fetchConnecResource($entity_id);
