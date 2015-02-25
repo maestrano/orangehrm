@@ -146,6 +146,7 @@ class TimesheetMapper extends BaseMapper {
       }
 
       // Create a TimeSheetLine per ProjectActivity
+      asort($activities_items);
       foreach ($activities_items as $activityId => $timesheetItems) {
         $time_sheet_line = array('time_activities' => array());
 
