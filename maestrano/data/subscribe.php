@@ -4,7 +4,7 @@ require_once '../init.php';
 require_once '../connec/init.php';
 
 try {
-  $client = new Maestrano_Connec_Client('orangehrm.app.dev.maestrano.io');
+  if(!Maestrano::param('connec.enabled')) { return false; }
 
   $notification = json_decode(file_get_contents('php://input'), false);
   $entity_name = strtoupper(trim($notification->entity));

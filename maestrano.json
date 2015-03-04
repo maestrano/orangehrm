@@ -5,7 +5,8 @@
     },
     "api": {
         "id": "app-15ua",
-        "key": "67aa6ed2-e659-425b-ba68-f87d9b62e734",
+        "key": "b9ef39ff-ba2b-4473-b1ab-355f151843f8",
+        "group_id": "orangehrm.app.dev.maestrano.io",
         "base": ""
     },
     "sso": {
@@ -17,6 +18,7 @@
         "creation_mode": "virtual"
     },
     "connec": {
+      "enabled": true,
       "host": "http://connec.maestrano.io",
       "base_path": "/api/v2"
     },

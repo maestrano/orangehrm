@@ -20,8 +20,7 @@ class Maestrano_Sso_Service
    *
    * @return Maestrano_Sso_Service
    */
-  public static function instance()
-  {
+  public static function instance() {
       if ( ! isset(self::$_instance)) {
           self::$_instance = new self();
       }
@@ -33,8 +32,7 @@ class Maestrano_Sso_Service
    *
    * @return boolean
    */
-   public function isSsoEnabled()
-   {
+   public function isSsoEnabled() {
      return Maestrano::param('sso.enabled');
    }
    
@@ -43,8 +41,7 @@ class Maestrano_Sso_Service
     *
     * @return boolean
     */
-    public function isSloEnabled()
-    {
+    public function isSloEnabled() {
       return Maestrano::param('sso.slo_enabled');
     }
   
@@ -54,8 +51,7 @@ class Maestrano_Sso_Service
    *
    * @return boolean
    */
-  public function getInitPath()
-  {
+  public function getInitPath() {
     return Maestrano::param('sso.init_path');
   }
   
@@ -65,8 +61,7 @@ class Maestrano_Sso_Service
    *
    * @return boolean
    */
-  public function getInitUrl()
-  {
+  public function getInitUrl() {
     $host = Maestrano::param('app.host');
     $path = $this->getInitPath();
     return "${host}${path}";
@@ -76,8 +71,7 @@ class Maestrano_Sso_Service
    * The path where the SSO response will be posted and consumed.
    * @var string
    */
-  public function getConsumePath()
-  {
+  public function getConsumePath() {
     return Maestrano::param('sso.consume_path');
   }
   
@@ -85,8 +79,7 @@ class Maestrano_Sso_Service
    * The URL where the SSO response will be posted and consumed.
    * @var string
    */
-  public function getConsumeUrl()
-  {
+  public function getConsumeUrl() {
     $host = Maestrano::param('app.host');
     $path = $this->getConsumePath();
     return "${host}${path}";
@@ -98,8 +91,7 @@ class Maestrano_Sso_Service
    *
    * @return string url
    */
-  public function getLogoutUrl()
-  {
+  public function getLogoutUrl() {
     $host = Maestrano::param('sso.idp');
     $endpoint = '/app_logout';
     
@@ -112,8 +104,7 @@ class Maestrano_Sso_Service
    *
    * @return string url
    */
-  public function getUnauthorizedUrl()
-  {
+  public function getUnauthorizedUrl() {
     $host = Maestrano::param('api.host');
     $endpoint = '/app_access_unauthorized';
     
@@ -135,15 +126,14 @@ class Maestrano_Sso_Service
    * The Maestrano endpoint in charge of providing session information
    * @var string
    */
-  public function getSessionCheckUrl($user_id,$sso_session) 
-  {
+  public function getSessionCheckUrl($user_id,$sso_session)  {
     $host = Maestrano::param('sso.idp');
     $api_base = Maestrano::param('api.base');
     $endpoint = 'auth/saml';
     
     return "${host}${api_base}${endpoint}/${user_id}?session=${sso_session}";
   }
-  
+
   /**
    * Return a settings object for php-saml
    * 
