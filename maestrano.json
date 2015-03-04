@@ -28,6 +28,7 @@
             "groupUsersPath": "/maestrano/account/groups/:group_id/users/:id"
         },
         "connec": {
+            "initialization_path": "/maestrano/data/initialize.php",
             "notifications_path": "/maestrano/data/subscribe.php",
             "subscriptions": {
                 "company": true,
