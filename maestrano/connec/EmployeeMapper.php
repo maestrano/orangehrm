@@ -32,12 +32,17 @@ class EmployeeMapper extends BaseMapper {
     return $this->_employeeService->getEmployee($local_id);
   }
 
-  // Match an EMployee by employee id
+  // Match an Employee by employee id or email
   protected function matchLocalModel($employee_hash) {
-    if($employee_hash['employee_id'] != null) {
+    if(!is_null($employee_hash['employee_id'])) {
       $employee = $this->_employeeService->getEmployeeByEmployeeId($employee_hash['employee_id']);
-      if($employee != null) { return $employee; }
+      if(!is_null($employee)) { return $employee; }
+    } else if(!is_null($employee_hash['email']) && !is_null($employee_hash['email']['address'])) {
+      // Match only by email if employee_id is not set, most likely created during SSO
+      $employee = $this->getEmployeeByEmail($employee_hash['email']['address']);
+      if(!is_null($employee)) { return $employee; }
     }
+    return null;
   }
 
   // Map the Connec resource attributes onto the OrangeHRM Employee
@@ -173,5 +178,14 @@ class EmployeeMapper extends BaseMapper {
     $job = new JobTitle();
     $job->jobTitleName = $jobTitleName;
     return $job->save();
+  }
+
+  public function getEmployeeByEmail($email) {
+    $q = Doctrine_Query::create()
+                       ->from('Employee')
+                       ->where('emp_work_email = ?', trim($email));
+    $result = $q->fetchOne();
+    if (!$result) { return null; }
+    return $result;
   }
 }
