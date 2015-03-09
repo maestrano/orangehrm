@@ -90,6 +90,13 @@ class OrganizationGeneralInformationForm extends BaseForm {
         $this->organization->setNote($this->getValue('note'));
 
         $this->organization->save();
+
+        // Hook:Maestrano
+        $mapper = 'CompanyMapper';
+        if(class_exists($mapper)) {
+          $companyMapper = new $mapper();
+          $companyMapper->processLocalUpdate($this->organization);
+        }
     }
 
     private function __setDefaultValues(Organization $organization) {

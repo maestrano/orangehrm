@@ -24,17 +24,15 @@ class AuthenticationDao extends BaseDao {
      * Retrieve user only with username
      *
      * @param string $username
-     * @param string $password
      * @return Users
      */
      public function getCredentialsWithoutPassword($username) {
-         $query = Doctrine_Query::create()
-                 ->from('SystemUser')
-                 ->where('user_name = ?', $username)
-                 ->andWhere('deleted = 0');
+        $query = Doctrine_Query::create()
+           ->from('SystemUser')
+           ->where('user_name = ?', $username)
+           ->andWhere('deleted = 0');
 
-
-         return $query->fetchOne();
+        return $query->fetchOne();
      }
 
 }

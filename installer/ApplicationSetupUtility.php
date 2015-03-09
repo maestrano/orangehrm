@@ -19,7 +19,8 @@
  */
 
 require_once ROOT_PATH.'/installer/utils/UniqueIDGenerator.php';
-
+require_once ROOT_PATH.'/symfony/lib/vendor/phpass/PasswordHash.php';
+require_once ROOT_PATH.'/symfony/lib/vendor/phpseclib/Crypt/Random.php';
 
 class ApplicationSetupUtility {
 
@@ -160,6 +161,36 @@ public static function fillData($phase=1, $source='/dbscript/dbscript-') {
         }
 }
 
+    public static function insertCsrfKey() {
+        $csrfKey = self::createCsrfKey();
+        $phase = isset($_SESSION['INSTALLING'])?isset($_SESSION['INSTALLING']):2;
+        self::connectDB();
+
+        if (!@mysql_select_db($_SESSION['dbInfo']['dbName'])) {
+            $_SESSION['error'] = 'Unable to access OrangeHRM Database!';
+            return;
+        }
+
+        error_log (date("r")." Fill Data Phase $phase - Connected to the DB Server\n",3, "installer/log.txt");
+        
+        $query = "INSERT INTO `hs_hr_config` ( `key`, `value`) VALUES ('csrf_secret', '{$csrfKey}');";
+
+        if (!mysql_query($query)) {
+            $_SESSION['error'] = 'Unable to initialize csrf key';
+            return;
+        }
+    }
+
+    public static function createCsrfKey() {
+        $csrfKey = '';
+
+        while (strlen($csrfKey) <= 50) {
+            $csrfKey .= base_convert(crypt_random(), 10, 32);
+        }
+
+        return $csrfKey;
+    }
+
 public static function createDBUser() {
 
 if ($_SESSION['dbCreateMethod'] == 'new') {
@@ -176,7 +207,7 @@ if ($_SESSION['dbCreateMethod'] == 'new') {
 
 
       	$query = <<< USRSQL
-GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, CREATE ROUTINE, ALTER ROUTINE, CREATE TEMPORARY TABLES, CREATE VIEW, EXECUTE
 ON `$dbName`.*
 TO "$dbOHRMUser"@"localhost"
 $querryIdentifiedBy;
@@ -192,7 +223,7 @@ USRSQL;
 		$dbOHRMPassword = $_SESSION['dbInfo']['dbOHRMPassword'];
 
       	$query = <<< USRSQL
-GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, CREATE ROUTINE, ALTER ROUTINE, CREATE TEMPORARY TABLES, CREATE VIEW, EXECUTE
 ON `$dbName`.*
 TO "$dbOHRMUser"@"%"
 $querryIdentifiedBy;
@@ -218,7 +249,9 @@ public static function createUser() {
 		return;
 	}
 
-	$query = "INSERT INTO `ohrm_user` ( `user_name`, `user_password`,`user_role_id`) VALUES ('" .$_SESSION['defUser']['AdminUserName']. "','".md5($_SESSION['defUser']['AdminPassword'])."','1')";
+        $passwordHasher = new PasswordHash(12, false);
+        $hash = $passwordHasher->HashPassword($_SESSION['defUser']['AdminPassword']);
+	$query = "INSERT INTO `ohrm_user` ( `user_name`, `user_password`,`user_role_id`) VALUES ('" .$_SESSION['defUser']['AdminUserName']. "','".$hash."','1')";
 
 	if(!mysql_query($query)) {
 		$_SESSION['error'] = 'Unable to Create OrangeHRM Admin User Account';
@@ -263,7 +296,7 @@ class Conf {
 		}
 		\$this->dbuser    = '$dbOHRMUser';
 		\$this->dbpass	= '$dbOHRMPassword';
-		\$this->version = '3.1.1';
+		\$this->version = '3.2.1';
 
 		\$this->emailConfiguration = dirname(__FILE__).'/mailConf.php';
 		\$this->errorLog =  realpath(dirname(__FILE__).'/../logs/').'/';
@@ -369,7 +402,8 @@ public static function install() {
 					break;
 
 		case 1	:	error_log (date("r")." Fill Data Phase 1 - Starting\n",3, "installer/log.txt");
-					self::fillData();
+					self::fillData();                                        
+                                        self::createMysqlProcedures();
 					error_log (date("r")." Fill Data Phase 1 - Done\n",3, "installer/log.txt");
 					if (!isset($error) || !isset($_SESSION['error'])) {
 						$_SESSION['INSTALLING'] = 2;
@@ -382,7 +416,8 @@ public static function install() {
 
 		case 2	:	error_log (date("r")." Fill Data Phase 2 - Starting\n",3, "installer/log.txt");
 					self::fillData(2);
-                    self::createMysqlEvents();
+                                        self::createMysqlEvents();
+                                        self::insertCsrfKey();
 					error_log (date("r")." Fill Data Phase 2 - Done\n",3, "installer/log.txt");
 					if (!isset($error) || !isset($_SESSION['error'])) {
 						$res = self::initUniqueIDs();
@@ -456,6 +491,40 @@ public static function install() {
         
         return true;
         
+    }
+    
+    public static function createMysqlProcedures(){
+        self::connectDB();
+        
+        $sql = array();
+        $sql[] = "DROP FUNCTION IF EXISTS dashboard_get_subunit_parent_id;";
+        
+        $sql[] = "CREATE FUNCTION  dashboard_get_subunit_parent_id
+                (
+                  id INT
+                )
+                RETURNS INT
+                DETERMINISTIC
+                READS SQL DATA
+                BEGIN
+                SELECT (SELECT t2.id 
+                               FROM ohrm_subunit t2 
+                               WHERE t2.lft < t1.lft AND t2.rgt > t1.rgt    
+                               ORDER BY t2.rgt-t1.rgt ASC LIMIT 1) INTO @parent
+                FROM ohrm_subunit t1 WHERE t1.id = id;
+
+                RETURN @parent;
+
+                END;";
+        
+        foreach($sql as $query){
+            if (!mysql_query($query)) {
+                error_log (date("r")." MySQL Procedure Error:".mysql_error()."\n",3, "installer/log.txt");
+                return false;
+            }
+        }
+        
+        return true;
     }
 
 }

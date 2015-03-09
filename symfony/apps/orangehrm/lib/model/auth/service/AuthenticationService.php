@@ -2,26 +2,37 @@
 
 class AuthenticationService extends BaseService {
 
-    private $authenticationDao;
+    private $systemUserService;
     private $cookieManager;
 
     /**
-     *
-     * @param AuthenticationDao $dao 
-     */
-    public function setAuthenticationDao($dao) {
-        $this->authenticationDao = $dao;
+    *
+    * @return AuthenticationDao
+    */
+    public function getAuthenticationDao() {
+      if (!isset($this->authenticationDao)) {
+        $this->authenticationDao = new AuthenticationDao();
+      }
+      return $this->authenticationDao;
     }
 
     /**
      *
-     * @return AuthenticationDao 
+     * @param SystemUserService $dao 
      */
-    public function getAuthenticationDao() {
-        if (!isset($this->authenticationDao)) {
-            $this->authenticationDao = new AuthenticationDao();
+    public function setSystemUserService($service) {
+        $this->systemUserService = $service;
+    }
+
+    /**
+     *
+     * @return SystemUserService 
+     */
+    public function getSystemUserService() {
+        if (!isset($this->systemUserService)) {
+            $this->systemUserService = new SystemUserService();
         }
-        return $this->authenticationDao;
+        return $this->systemUserService;
     }
 
     /**
@@ -50,7 +61,7 @@ class AuthenticationService extends BaseService {
      * @return bool 
      */
     public function hasValidCredentials($username, $password) {
-        $user = $this->getAuthenticationDao()->getCredentials($username, md5($password));
+        $user = $this->getSystemUserService()->getCredentials($username, $password);
         return (!(is_null($user) || !$user));
     }
 
@@ -63,7 +74,7 @@ class AuthenticationService extends BaseService {
      * @throws AuthenticationServiceException
      */
     public function setCredentials($username, $password, $additionalData) {
-        $user = $this->getAuthenticationDao()->getCredentials($username, md5($password));
+        $user = $this->getSystemUserService()->getCredentials($username, $password);
 
         if (is_null($user) || !$user) {
             return false;
@@ -78,6 +89,8 @@ class AuthenticationService extends BaseService {
                 throw new AuthenticationServiceException('Account disabled');
             }
 
+            session_regenerate_id(TRUE);
+            
             $this->setBasicUserAttributes($user);
             $this->setBasicUserAttributesToSession($user);
             $this->setRoleBasedUserAttributes($user);

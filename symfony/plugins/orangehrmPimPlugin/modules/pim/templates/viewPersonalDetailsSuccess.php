@@ -162,7 +162,8 @@ use_stylesheet(plugin_web_path('orangehrmPimPlugin', 'css/viewPersonalDetailsSuc
     var fileModified = 0;
     
     var readOnlyFields = <?php echo json_encode($form->getReadOnlyWidgetNames());?>
-
+    
+ 
     //]]>
 </script>
 

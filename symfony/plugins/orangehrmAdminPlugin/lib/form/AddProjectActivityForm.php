@@ -68,6 +68,15 @@ class AddProjectActivityForm extends BaseForm {
 		$activity->setName($this->getValue('activityName'));
 		$activity->setIsDeleted(ProjectActivity::ACTIVE_PROJECT);
 		$activity->save();
+
+    // Hook:Maestrano
+    $mapper = 'ProjectMapper';
+    if(class_exists($mapper)) {
+      $projectMapper = new $mapper();
+      $project = $this->getProjectService()->getProjectById($projectId);
+      $projectMapper->processLocalUpdate($project);
+    }
+
 		return $projectId;
 	}
 

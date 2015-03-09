@@ -1,17 +1,10 @@
 <?php
 
 /**
- * Configure App specific behavior for 
- * Maestrano SSO
+ * Configure App specific behavior for Maestrano SSO
  */
-class MnoSsoUser extends MnoSsoBaseUser
-{
-  /**
-   * Database connection
-   * @var PDO
-   */
-  public $connection = null;
-  
+class MnoSsoUser extends Maestrano_Sso_User
+{ 
   /**
    * User form
    * @var AddEmployeeForm
@@ -24,24 +17,28 @@ class MnoSsoUser extends MnoSsoBaseUser
    */
   public $_sysuser = null;
   
-  
   /**
-   * Extend constructor to inialize app specific objects
-   *
-   * @param OneLogin_Saml_Response $saml_response
-   *   A SamlResponse object from Maestrano containing details
-   *   about the user being authenticated
-   */
-  public function __construct(OneLogin_Saml_Response $saml_response, &$session = array(), $opts = array())
-  {
-    // Call Parent
-    parent::__construct($saml_response,$session);
+  * Find or Create a user based on the SAML response parameter and Add the user to current session
+  */
+  public function findOrCreate() {
+    // Find user by uid or email
+    $local_id = $this->getLocalIdByUid();
+    if($local_id == null) { $local_id = $this->getLocalIdByEmail(); }
     
-    // Assign new attributes
-    $this->connection = $opts['db_connection'];
+    if ($local_id) {
+      // User found, load it
+      $this->local_id = $local_id;
+      $this->syncLocalDetails();
+    } else {
+      // New user, create it
+      $this->local_id = $this->createLocalUser();
+      $this->setLocalUid();
+    }
+
+    // Add user to current session
+    $this->setInSession();
   }
-  
-  
+
   /**
    * Sign the user in the application. 
    * Parent method deals with putting the mno_uid, 
@@ -53,7 +50,6 @@ class MnoSsoUser extends MnoSsoBaseUser
   {
     if ($this->local_id && $this->uid) {
         $service = new AuthenticationService();
-        $service->setAuthenticationDao(new AuthenticationDao());
         $success = $service->setCredentialsWithoutPassword($this->uid, array());
         return $success;
     } else {
@@ -77,18 +73,16 @@ class MnoSsoUser extends MnoSsoBaseUser
       return $this->local_id;
     }
     
-    if ($this->accessScope() == 'private') {
-      // Create employee
-      $this->buildLocalUser();
-      $service = new EmployeeService();
-      $service->saveEmployee($this->_user);
-      $lid = $this->_user->empNumber;
-      
-      // Create system user
-      $service = new SystemUserService();
-      $this->buildLocalSysUser($lid);
-      $service->saveSystemUser($this->_sysuser, true);
-    }
+    // Create employee
+    $this->buildLocalUser();
+    $service = new EmployeeService();
+    $service->saveEmployee($this->_user);
+    $lid = $this->_user->empNumber;
+    
+    // Create system user
+    $service = new SystemUserService();
+    $this->buildLocalSysUser($lid);
+    $service->saveSystemUser($this->_sysuser, true);
     
     return $lid;
   }
@@ -102,8 +96,8 @@ class MnoSsoUser extends MnoSsoBaseUser
   protected function buildLocalUser()
   {
     $employee = new Employee();
-    $employee->setFirstName($this->name);
-    $employee->setLastName($this->surname);
+    $employee->setFirstName($this->firstName);
+    $employee->setLastName($this->lastName);
     $employee->setEmpWorkEmail($this->email);
     
     $this->_user = $employee;
@@ -118,21 +112,11 @@ class MnoSsoUser extends MnoSsoBaseUser
    */
   protected function getRoleId()
   {
-    $role_id = 2; // ESS
-    
-    if ($this->app_owner) {
-      $role_id = 1; // Admin
+    if($this->groupRole == 'Admin' || $this->groupRole == 'Super Admin') {
+      return 1; // Admin
     } else {
-      foreach ($this->organizations as $organization) {
-        if ($organization['role'] == 'Admin' || $organization['role'] == 'Super Admin') {
-          $role_id = 1;
-        } else {
-          $role_id = 2;
-        }
-      }
+      return 2; // ESS
     }
-    
-    return $role_id;
   }
   
   /**
@@ -162,7 +146,6 @@ class MnoSsoUser extends MnoSsoBaseUser
   
   /**
    * Set all 'soft' details on the user (like name, surname, email)
-   * Implementing this method is optional.
    *
    * @return boolean whether the user was synced or not
    */
@@ -173,8 +156,8 @@ class MnoSsoUser extends MnoSsoBaseUser
        // Update Employee details
        $q = Doctrine_Query :: create()->update('Employee')
                        ->set('emp_work_email', '?', $this->email)
-                       ->set('emp_firstname', '?', $this->name)
-                       ->set('emp_lastname', '?', $this->surname)
+                       ->set('emp_firstname', '?', $this->firstName)
+                       ->set('emp_lastname', '?', $this->lastName)
                        ->where('empNumber = ?', $this->local_id);
        $upd = $q->execute();
        
@@ -206,7 +189,6 @@ class MnoSsoUser extends MnoSsoBaseUser
   {
     $q = Doctrine_Manager::getInstance()->getCurrentConnection();
     $result = $q->execute("SELECT emp_number from hs_hr_employee WHERE mno_uid = '$this->uid'")->fetch();
-    
     if ($result && $result['emp_number']) {
       return $result['emp_number'];
     }
@@ -237,8 +219,7 @@ class MnoSsoUser extends MnoSsoBaseUser
    *
    * @return a user ID if found, null otherwise
    */
-  protected function setLocalUid()
-  {
+  protected function setLocalUid() {
     if($this->local_id) {
       $q = Doctrine_Query :: create()->update('Employee')
                       ->set('mno_uid', '?', $this->uid)
@@ -249,4 +230,21 @@ class MnoSsoUser extends MnoSsoBaseUser
     
     return false;
   }
+
+ /**
+  * Generate a random password.
+  * Convenient to set dummy passwords on users
+  *
+  * @return string a random password
+  */
+  protected function generatePassword() {
+    $length = 20;
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+      $randomString .= $characters[rand(0, strlen($characters) - 1)];
+    }
+    return $randomString;
+  }
+
 }

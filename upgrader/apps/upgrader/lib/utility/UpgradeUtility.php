@@ -102,7 +102,7 @@ class Conf {
         }
         \$this->dbuser    = '$dbOHRMUser';
         \$this->dbpass  = '$dbOHRMPassword';
-        \$this->version = '3.0.1';
+        \$this->version = '3.2';
 
         \$this->emailConfiguration = dirname(__FILE__).'/mailConf.php';
         \$this->errorLog =  realpath(dirname(__FILE__).'/../logs/').'/';
@@ -195,7 +195,7 @@ CONFCONT;
      */
     public function getEndIncrementNumber() {
         
-        return 58;
+        return 61;
         
     }
     
@@ -237,6 +237,10 @@ CONFCONT;
         $a['3.0']       = 56;
         $a['3.0.1']     = 57;
         $a['3.1']       = 58;
+        $a['3.1.1']       = 59;
+        $a['3.1.2']      =60;
+        $a['3.1.3']      =61;
+        $a['3.1.4']      =61;
         
         return $a;
         
@@ -247,7 +251,7 @@ CONFCONT;
      */
     public function getNewVersion() {
         
-        return '3.1.1';
+        return '3.2';
         
     }
     
@@ -285,11 +289,14 @@ CONFCONT;
     }
     
     public function checkDatabaseStatus() {
-        $sql = "select 1 from `ohrm_upgrade_status`";
+        $sql = "SHOW TABLES LIKE 'ohrm_upgrade_status'";
         $result = $this->executeSql($sql);
-        if ($result) {
+                
+        if (mysqli_num_rows($result)>0) {
+            
             return false;
         } else {
+           
             return true;
         }
     }

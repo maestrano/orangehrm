@@ -498,5 +498,5 @@ class Employee extends PluginEmployee {
         $state = $this->termination_id == null ? self::STATE_ACTIVE : self::STATE_TERMINATED;
         
         return $state;
-    }    
+    }
 }

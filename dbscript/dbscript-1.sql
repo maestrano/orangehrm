@@ -520,42 +520,6 @@ create table `hs_hr_emp_locations` (
   primary key  (`emp_number`, `location_id`)
 ) engine=innodb default charset=utf8;
 
-create table `hs_hr_kpi` (
-  `id` int(13) not null,
-  `job_title_code` varchar(13) default null,
-  `description` varchar(200) default null,
-  `rate_min` double default null,
-  `rate_max` double default null,
-  `rate_default` tinyint(4) default null,
-  `is_active` tinyint(4) default null,
-  primary key (`id`)
-) engine=innodb default charset=utf8;
-
-create table `hs_hr_performance_review` (
-  `id` int(13) not null,
-  `employee_id` int(13) not null,
-  `reviewer_id` int(13) null,
-  `creator_id` varchar(36) default null,
-  `job_title_code` varchar(10) not null,
-  `sub_division_id` int(13) default null,  
-  `creation_date` date not null,
-  `period_from` date not null,
-  `period_to` date not null,
-  `due_date` date not null,
-  `state` tinyint(2) default null,
-  `kpis` text default null,
-  primary key (`id`)
-) engine=innodb default charset=utf8;
-
-create table `hs_hr_performance_review_comments`(
-	`id` int(13) not null auto_increment,
-	`pr_id` int(13) not null,
-	`employee_id` int(13) default null,
-	`comment` text default null,
-	`create_date` date not null,
-	primary key (`id`)
-)engine=innodb default charset=utf8;
-
 create table `ohrm_timesheet`(
   `timesheet_id` bigint(20) not null,
   `state` varchar(255) not null,
@@ -961,7 +925,7 @@ create table `ohrm_user`(
         `user_role_id` int(10) not null,
         `emp_number` int(13) DEFAULT NULL,
         `user_name` varchar(40) unique,
-        `user_password` varchar(40) DEFAULT NULL,
+        `user_password` varchar(255) DEFAULT NULL,
         `deleted` tinyint(1) NOT NULL DEFAULT '0',
         `status` tinyint(1) NOT NULL DEFAULT '1',
         `date_entered` datetime null default null,
@@ -1816,11 +1780,175 @@ alter table ohrm_data_group_screen
 alter table ohrm_data_group_screen
     add foreign key (screen_id) references ohrm_screen(id) on delete cascade;
 
+-- 
+-- SET @admin_module_id := (SELECT `id` FROM `ohrm_module` WHERE `name` = 'admin');
+-- 
+-- INSERT INTO `ohrm_screen` (`name`,`module_id`,`action_url`) VALUES
+-- ('Beacon Registration',@admin_module_id,'beaconRegistration');
+-- 
+-- SET @beacon_screen_id := (SELECT LAST_INSERT_ID());
+-- 
+-- SET @admin_menu_id := (SELECT `id` FROM `ohrm_menu_item` WHERE `menu_title` = 'Admin');
 
-alter table hs_hr_performance_review
-    add constraint foreign key (employee_id)
-        references hs_hr_employee (emp_number) on delete cascade;
+-- INSERT INTO ohrm_menu_item (`menu_title`, `screen_id`, `parent_id`, `level`, `order_hint`, `url_extras`, `status`) VALUES
+-- ('Beacon', @beacon_screen_id, @admin_menu_id, 2, 1000, NULL, 1);
+-- 
+-- SET @admin_role_id := (SELECT `id` FROM ohrm_user_role WHERE `name` = 'Admin');
+-- 
+-- INSERT INTO ohrm_user_role_screen (user_role_id, screen_id, can_read, can_create, can_update, can_delete) VALUES
+-- (@admin_role_id, @beacon_screen_id, 1, 1, 1, 1);
 
-alter table hs_hr_performance_review
-    add constraint foreign key (reviewer_id)
-        references hs_hr_employee (emp_number) on delete set null;
+CREATE TABLE `ohrm_datapoint_type` (
+    `id` INT AUTO_INCREMENT, 
+    `name` VARCHAR(100) NOT NULL, 
+    `action_class` VARCHAR(100) NOT NULL, 
+    PRIMARY KEY(id)
+) ENGINE = INNODB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `ohrm_datapoint` (
+    `id` INT AUTO_INCREMENT, 
+    `name` VARCHAR(100), 
+    `datapoint_type_id` INT NOT NULL, 
+    `definition` LONGTEXT NOT NULL, 
+    PRIMARY KEY(`id`),
+    FOREIGN KEY (`datapoint_type_id`) REFERENCES `ohrm_datapoint_type` (`id`) ON DELETE CASCADE
+) ENGINE = INNODB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `ohrm_beacon_notification` (
+    `id` INT AUTO_INCREMENT, 
+    `name` VARCHAR(100) NOT NULL, 
+    `expiry_date` TIMESTAMP NOT NULL, 
+    `definition` LONGTEXT NOT NULL, PRIMARY KEY(id)
+) ENGINE = INNODB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `ohrm_login` (
+    `id` INT AUTO_INCREMENT, 
+    `user_id` BIGINT NOT NULL, 
+    `user_name` VARCHAR(255), 
+    `user_role_name` TEXT NOT NULL, 
+    `user_role_predefined` TINYINT(1) NOT NULL, 
+    `login_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(id)
+) ENGINE = INNODB DEFAULT CHARSET=utf8;
+        
+CREATE TABLE `ohrm_kpi` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `job_title_code` varchar(10) DEFAULT NULL,
+  `kpi_indicators` varchar(255) DEFAULT NULL,
+  `min_rating` int(7) DEFAULT 0,
+  `max_rating` int(7) DEFAULT 0,
+  `default_kpi` smallint(1) DEFAULT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+
+CREATE TABLE `ohrm_performance_review` (
+  `id` int(7) NOT NULL AUTO_INCREMENT,
+  `status_id` int(7) DEFAULT NULL,
+  `employee_number` int(7) DEFAULT NULL,
+  `work_period_start` date DEFAULT NULL,
+  `work_period_end` date DEFAULT NULL,
+  `job_title_code` int(7) DEFAULT NULL,
+  `department_id` int(7) DEFAULT NULL,
+  `due_date` date DEFAULT NULL,
+  `completed_date` date DEFAULT NULL,  
+  `activated_date` DATETIME DEFAULT NULL,
+  `final_comment` text CHARACTER SET utf8 COLLATE utf8_bin,
+  `final_rate` DECIMAL(18, 2) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `employee_number` (`employee_number`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `ohrm_reviewer` (
+  `id` int(7) NOT NULL AUTO_INCREMENT,
+  `review_id` int(7) DEFAULT NULL,
+  `employee_number` int(7) DEFAULT NULL,
+  `status` int(7) DEFAULT NULL,
+  `reviewer_group_id` int(7) DEFAULT NULL,
+  `completed_date` DATETIME DEFAULT NULL,
+  `comment` text CHARACTER SET utf8 COLLATE utf8_bin,
+  PRIMARY KEY (`id`),
+  KEY `review_id` (`review_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `ohrm_reviewer_group` (
+  `id` int(7) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) DEFAULT NULL,
+  `piority` int(7) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `ohrm_reviewer_rating` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `rating` DECIMAL(18, 2) DEFAULT NULL,
+  `kpi_id` int(7) DEFAULT NULL,
+  `review_id` int(7) DEFAULT NULL,
+  `reviewer_id` int(7) NOT NULL,
+  `comment` text CHARACTER SET utf8 COLLATE utf8_bin,
+  PRIMARY KEY (`id`),
+  KEY `review_id` (`review_id`),
+  KEY `reviewer_id` (`reviewer_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+ALTER TABLE `ohrm_performance_review`
+  ADD CONSTRAINT FOREIGN KEY (`employee_number`) REFERENCES `hs_hr_employee` (`emp_number`) ON DELETE CASCADE ;
+
+ALTER TABLE `ohrm_reviewer`
+  ADD CONSTRAINT FOREIGN KEY (`review_id`) REFERENCES `ohrm_performance_review` (`id`) ON DELETE CASCADE ;
+
+ALTER TABLE `ohrm_reviewer_rating`
+  ADD CONSTRAINT FOREIGN KEY (`reviewer_id`) REFERENCES `ohrm_reviewer` (`id`) ON DELETE CASCADE ;
+
+ALTER TABLE `ohrm_reviewer_rating`
+  ADD CONSTRAINT FOREIGN KEY (`review_id`) REFERENCES `ohrm_performance_review` (`id`) ON DELETE CASCADE ;
+
+CREATE TABLE `ohrm_performance_track` ( 
+  `id` int(11) NOT NULL AUTO_INCREMENT, 
+  `emp_number` int(7) NOT NULL, 
+  `tracker_name` varchar(200) NOT NULL,
+  `added_date` timestamp NULL DEFAULT NULL, 
+  `added_by` int(11) DEFAULT NULL, 
+  `status` int(11) DEFAULT NULL, 
+  `modified_date` timestamp NULL DEFAULT NULL, 
+  PRIMARY KEY (`id`), 
+  KEY `ohrm_performance_track_fk1_idx` (`emp_number`), 
+  KEY `ohrm_performance_track_fk2_idx` (`added_by`), 
+  CONSTRAINT `ohrm_performance_track_fk1` FOREIGN KEY (`emp_number`) REFERENCES `hs_hr_employee` (`emp_number`) ON DELETE CASCADE ON UPDATE CASCADE, 
+  CONSTRAINT `ohrm_performance_track_fk2` FOREIGN KEY (`added_by`) REFERENCES `hs_hr_employee` (`emp_number`) ON DELETE CASCADE ON UPDATE CASCADE 
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `ohrm_performance_tracker_log` ( 
+  `id` int(11) NOT NULL AUTO_INCREMENT, 
+  `performance_track_id` int(11) DEFAULT NULL, 
+  `log` varchar(150) DEFAULT NULL, 
+  `comment` varchar(3000) DEFAULT NULL, 
+  `status` int(11) DEFAULT NULL, 
+  `added_date` timestamp NULL DEFAULT NULL, 
+  `modified_date` timestamp NULL DEFAULT NULL, 
+  `reviewer_id` int(7) DEFAULT NULL, 
+  `achievement` varchar(45) DEFAULT NULL, 
+  `user_id` int(10) DEFAULT NULL, 
+  PRIMARY KEY (`id`), 
+  KEY `ohrm_performance_tracker_log_fk1_idx` (`performance_track_id`), 
+  KEY `ohrm_performance_tracker_log_fk2_idx` (`reviewer_id`), 
+  KEY `fk_ohrm_performance_tracker_log_1` (`user_id`), 
+  CONSTRAINT `fk_ohrm_performance_tracker_log_1` FOREIGN KEY (`user_id`) REFERENCES `ohrm_user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, 
+  CONSTRAINT `ohrm_performance_tracker_log_fk1` FOREIGN KEY (`performance_track_id`) REFERENCES `ohrm_performance_track` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, 
+  CONSTRAINT `ohrm_performance_tracker_log_fk2` FOREIGN KEY (`reviewer_id`) REFERENCES `hs_hr_employee` (`emp_number`) ON DELETE CASCADE ON UPDATE CASCADE 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `ohrm_performance_tracker_reviewer` ( 
+  `id` int(11) NOT NULL AUTO_INCREMENT, 
+  `performance_track_id` int(11) NOT NULL, 
+  `reviewer_id` int(7) NOT NULL, 
+  `added_date` timestamp NULL DEFAULT NULL, 
+  `status` int(2) DEFAULT NULL, 
+  PRIMARY KEY (`id`), 
+  KEY `ohrm_performance_tracker_reviewer_fk1_idx` (`performance_track_id`), 
+  KEY `ohrm_performance_tracker_reviewer_fk2_idx` (`reviewer_id`), 
+  CONSTRAINT `ohrm_performance_tracker_reviewer_fk1` FOREIGN KEY (`performance_track_id`) REFERENCES `ohrm_performance_track` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, 
+  CONSTRAINT `ohrm_performance_tracker_reviewer_fk2` FOREIGN KEY (`reviewer_id`) REFERENCES `hs_hr_employee` (`emp_number`) ON DELETE CASCADE ON UPDATE CASCADE 
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

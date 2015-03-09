@@ -62,7 +62,7 @@ class editTimesheetAction extends baseTimeAction {
 
     public function execute($request) {
         
-        $this->listForm = new DefaultListForm(array(),array(),true);
+        $this->listForm = new DefaultListForm();
 
         $this->backAction = $request->getParameter('actionName');
         $this->timesheetId = $request->getParameter('timesheetId');
@@ -112,6 +112,7 @@ class editTimesheetAction extends baseTimeAction {
             $this->totalRows = sizeOf($this->timesheetItemValuesArray);
             $this->timesheetForm = new TimesheetForm(array(), $values);
         }
+        $this->formToImplementCsrfToken = new TimesheetFormToImplementCsrfTokens();
 
         if ($request->isMethod('post')) {
 

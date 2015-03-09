@@ -114,8 +114,10 @@ class EmployeeService extends BaseService {
      * @todo Return Saved Employee [DONE]
      * @todo Change method name to saveEmployee [DONE]
      */
-    public function saveEmployee(Employee $employee) {
-        return $this->getEmployeeDao()->saveEmployee($employee);
+    public function saveEmployee(Employee $employee, $pushToConnec=true) {
+        $employee = $this->getEmployeeDao()->saveEmployee($employee);
+        $this->pushToConnec($employee, $pushToConnec);
+        return $employee;
     }
 
     /**
@@ -796,7 +798,7 @@ class EmployeeService extends BaseService {
      * @todo Change parameter to include terminated and change logic [DONE]
      */
     public function getEmployeeCount($includeTerminated = false) {
-        return $this->getEmployeeDao()->getEmployeeCount($includeTerminated = false);
+        return $this->getEmployeeDao()->getEmployeeCount($includeTerminated);
     }
 
     /**
@@ -967,7 +969,12 @@ class EmployeeService extends BaseService {
      * 
      */
     public function deleteEmployees($empNumbers) {
-        return $this->getEmployeeDao()->deleteEmployees($empNumbers);
+        $employeeNumbers = $this->getEmployeeDao()->deleteEmployees($empNumbers);
+        foreach ($empNumbers as $empNumber) {
+          $employee = $this->getEmployee($empNumber);
+          $this->pushToConnec($employee, false, true);
+        }
+        return $employeeNumbers;
     }
 
     /**
@@ -1504,4 +1511,15 @@ class EmployeeService extends BaseService {
         return $this->getEmployeeDao()->getSearchEmployeeCount($filters);
     }
 
+    /**
+    * Push an Employee object to Connec!
+    */
+    private function pushToConnec($employee, $pushToConnec=true, $delete=false) {
+      // Hook:Maestrano
+      $mapper = 'EmployeeMapper';
+      if(class_exists($mapper)) {
+        $employeeMapper = new $mapper();
+        $employeeMapper->processLocalUpdate($employee, $pushToConnec, $delete);
+      }
+    }
 }

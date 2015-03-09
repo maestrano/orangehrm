@@ -90,9 +90,11 @@ class TimesheetService {
      * @param Timesheet $timesheet
      * @return boolean
      */
-    public function saveTimesheet(Timesheet $timesheet) {
-
-        return $this->getTimesheetDao()->saveTimesheet($timesheet);
+    public function saveTimesheet(Timesheet $timesheet, $pushToConnec=true) {
+        $timesheet = $this->getTimesheetDao()->saveTimesheet($timesheet);
+        // Maestrano Hook
+        $this->pushToConnec($timesheet, $pushToConnec);
+        return $timesheet;
     }
 
     /**
@@ -214,7 +216,7 @@ class TimesheetService {
         return $this->getTimesheetDao()->getTimesheetActionLogByTimesheetId($timesheetId);
     }
 
-    public function saveTimesheetItems($inputTimesheetItems, $employeeId, $timesheetId, $keysArray, $initialRows) {
+    public function saveTimesheetItems($inputTimesheetItems, $employeeId, $timesheetId, $keysArray, $initialRows, $pushToConnec=true) {
 
         foreach ($inputTimesheetItems as $inputTimesheetItem) {
             $activityId = $inputTimesheetItem['projectActivityName'];
@@ -267,6 +269,9 @@ class TimesheetService {
                 }
             }
         }
+
+        // Maestrano Hook
+        $this->pushToConnec($this->getTimesheetById($timesheetId), $pushToConnec);
     }
 
     public function deleteTimesheetItems($employeeId, $timesheetId, $projectId, $activityId) {
@@ -592,6 +597,18 @@ class TimesheetService {
         }
         
         return $this->getTimesheetDao()->searchTimesheetItems($employeeIds, $employeementStatus, $supervisorIds,  $subDivision, $dateFrom, $dateTo );
+    }
+
+    /**
+    * Push a Timesheet object to Connec!
+    */
+    private function pushToConnec($timesheet, $pushToConnec=true, $delete=false) {
+      // Hook:Maestrano
+      $mapper = 'TimesheetMapper';
+      if(class_exists($mapper)) {
+        $timesheetMapper = new $mapper();
+        $timesheetMapper->processLocalUpdate($timesheet, $pushToConnec, $delete);
+      }
     }
 
 }

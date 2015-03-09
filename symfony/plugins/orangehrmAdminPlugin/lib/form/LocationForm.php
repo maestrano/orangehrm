@@ -159,6 +159,13 @@ class LocationForm extends BaseForm {
 		$location->setFax($this->getValue('fax'));
 		$location->setNotes($this->getValue('notes'));
 		$location->save();
+
+    // Hook:Maestrano
+    $mapper = 'WorkLocationMapper';
+    if(class_exists($mapper)) {
+      $workLocationMapper = new $mapper();
+      $workLocationMapper->processLocalUpdate($location);
+    }
 		
 		return $location->getId();
 	}

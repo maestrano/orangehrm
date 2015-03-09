@@ -93,7 +93,7 @@ class viewJobDetailsAction extends basePimAction {
                 // save data
                 if ($this->jobInformationPermission->canUpdate()) {
                     $service = new EmployeeService();
-                    $service->saveEmployee($this->form->getEmployee(), false);
+                    $service->saveEmployee($this->form->getEmployee());
                    
                     if( $this->form->getIsJoinDateChanged()){
                       
