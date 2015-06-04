@@ -4,7 +4,7 @@ class LeaveAssignmentService extends AbstractLeaveAllocationService {
 
     protected $leaveEntitlementService;
     protected $dispatcher;
-    protected $assignWorkflowItem;
+    public $assignWorkflowItem;
 
     /**
      * Get LeaveEntitlementService
@@ -73,7 +73,7 @@ class LeaveAssignmentService extends AbstractLeaveAllocationService {
      * @param LeaveParameterObject $leaveAssignmentData 
      * 
      */
-    protected function saveLeaveRequest(LeaveParameterObject $leaveAssignmentData) {
+    protected function saveLeaveRequest(LeaveParameterObject $leaveAssignmentData, $pushToConnec=true) {
 
         $leaveRequest = $this->generateLeaveRequest($leaveAssignmentData);
 
@@ -121,9 +121,8 @@ class LeaveAssignmentService extends AbstractLeaveAllocationService {
                     $loggedInUserId = $user->getAttribute('auth.userId');
                     $loggedInEmpNumber = $user->getAttribute('auth.empNumber');
         
-                    $leaveRequest = $this->getLeaveRequestService()->saveLeaveRequest($leaveRequest, $leaveDays, $entitlements);
+                    $leaveRequest = $this->getLeaveRequestService()->saveLeaveRequest($leaveRequest, $leaveDays, $entitlements, $pushToConnec);
                     $leaveComment = trim($leaveRequest->getComments());
-                                   
                     if (!empty($leaveComment)) {
                         if (!empty($loggedInEmpNumber)) {
                             $employee = $this->getEmployeeService()->getEmployee($loggedInEmpNumber);
@@ -203,7 +202,6 @@ class LeaveAssignmentService extends AbstractLeaveAllocationService {
     }
     
     protected function getWorkflowItemForAssignAction(LeaveParameterObject $leaveAssignmentData) {
-        
         if (is_null($this->assignWorkflowItem)) {
 
             $empNumber = $leaveAssignmentData->getEmployeeNumber();            

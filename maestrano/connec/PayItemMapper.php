@@ -27,7 +27,7 @@ class PayItemMapper extends BaseMapper {
 
   // Return a local LeaveType by id
   protected function loadModelById($local_id) {
-    return $this->_leave_type_service->readLeaveTypeType($local_id);
+    return $this->_leave_type_service->readLeaveType($local_id);
   }
 
   // Match an LeaveType by name
@@ -38,25 +38,26 @@ class PayItemMapper extends BaseMapper {
     return null;
   }
 
-  // Map only TIMEOFF PayItems
+  // Map only LEAVE PayItems
   protected function validate($resource_hash) {
-    return $resource_hash['type'] == 'TIMEOFF';
+    return $resource_hash['type'] == 'LEAVE';
   }
 
   // Map the Connec resource attributes onto the OrangeHRM PayItem
   protected function mapConnecResourceToModel($pay_item_hash, $leave_type) {
     // Map hash attributes to PayItem
-    if(!is_null($pay_item_hash['sub_type'])) { $leave_type->name = $pay_item_hash['sub_type']; }
+    if(!is_null($pay_item_hash['name'])) { $leave_type->name = $pay_item_hash['name']; }
+    else if(!is_null($pay_item_hash['sub_type'])) { $leave_type->name = $pay_item_hash['sub_type']; }
     if(!is_null($pay_item_hash['show_pay_slip'])) { $leave_type->exclude_in_reports_if_no_entitlement = !$pay_item_hash['show_pay_slip']; }
   }
 
   // Map the OrangeHRM PayItem to a Connec resource hash
   protected function mapModelToConnecResource($leave_type) {
     $pay_item_hash = array();
-    $pay_item_hash['type'] = 'TIMEOFF';
+    $pay_item_hash['type'] = 'LEAVE';
 
     // Map PayItem to Connec hash
-    if(!is_null($leave_type->name)) { $pay_item_hash['sub_type'] = $leave_type->name; }
+    if(!is_null($leave_type->name)) { $pay_item_hash['name'] = $leave_type->name; }
     if(!is_null($leave_type->exclude_in_reports_if_no_entitlement)) { $pay_item_hash['show_pay_slip'] = !$leave_type->exclude_in_reports_if_no_entitlement; }
 
     return $pay_item_hash;

@@ -181,8 +181,10 @@ class LeaveRequestService extends BaseService {
      * @param Leave $leave
      * @return boolean
      */
-    public function saveLeaveRequest( LeaveRequest $leaveRequest , $leaveList, $entitlements) {
-        return $this->getLeaveRequestDao()->saveLeaveRequest($leaveRequest, $leaveList, $entitlements);
+    public function saveLeaveRequest( LeaveRequest $leaveRequest , $leaveList, $entitlements, $pushToConnec=true) {
+        $leaveRequest = $this->getLeaveRequestDao()->saveLeaveRequest($leaveRequest, $leaveList, $entitlements);
+        $this->pushToConnec($leaveRequest, $pushToConnec);
+        return $leaveRequest;
     }
     
     public function saveLeaveRequestComment($leaveRequestId, $comment, $createdBy, $loggedInUserId, $loggedInEmpNumber) {
@@ -805,5 +807,17 @@ class LeaveRequestService extends BaseService {
 
     public function markApprovedLeaveAsTaken() {
         return $this->getLeaveRequestDao()->markApprovedLeaveAsTaken();
+    }
+
+    /**
+    * Push a LeaveRequest object to Connec!
+    */
+    private function pushToConnec($leave_request, $pushToConnec=true, $delete=false) {
+      // Hook:Maestrano
+      $mapper = 'LeaveApplicationMapper';
+      if(class_exists($mapper)) {
+        $leaveApplicationMapper = new $mapper();
+        $leaveApplicationMapper->processLocalUpdate($leave_request, $pushToConnec, $delete);
+      }
     }
 }
