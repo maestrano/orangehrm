@@ -347,9 +347,9 @@ class BasicUserRoleManager extends AbstractUserRoleManager {
     public function getAllowedActions($workflow, $state, $rolesToExclude = array(), $rolesToInclude = array(), $entities = array()){
         $accessFlowStateMachineService = new AccessFlowStateMachineService();
         $allActions = array();
-        
+
         $filteredRoles = $this->filterRoles($this->userRoles, $rolesToExclude, $rolesToInclude, $entities);
-        
+
         foreach ($filteredRoles as $role) {
             $roleName = $this->fixUserRoleNameForWorkflowStateMachine($role->getName(), $workflow);
             $workFlowItems = $accessFlowStateMachineService->getAllowedWorkflowItems($workflow, $state, $roleName);     

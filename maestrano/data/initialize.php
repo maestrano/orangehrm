@@ -16,7 +16,7 @@ if (file_exists($filepath)) {
 
   // Fetch updates
   $client = new Maestrano_Connec_Client();
-  $msg = $client->get("updates/$timestamp");
+  $msg = $client->get("updates/$timestamp?\$filter[entity]=Company,TaxCode,Account,Organization,Employee,PayItem,Project,TimeSheet,WorkLocation,LeaveApplication");
   $code = $msg['code'];
   $body = $msg['body'];
 

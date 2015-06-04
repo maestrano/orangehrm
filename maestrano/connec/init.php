@@ -11,4 +11,5 @@ require_once 'EmployeeMapper.php';
 require_once 'EmployeeSalaryMapper.php';
 require_once 'TimesheetMapper.php';
 require_once 'TimesheetItemMapper.php';
+require_once 'LeaveApplicationMapper.php';
 require_once 'MnoIdMap.php';

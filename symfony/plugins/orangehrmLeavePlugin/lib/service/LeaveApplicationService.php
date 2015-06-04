@@ -83,7 +83,7 @@ class LeaveApplicationService extends AbstractLeaveAllocationService {
      * 
      * @todo Don't catch general Exception. Catch specific one.
      */
-    protected function saveLeaveRequest(LeaveParameterObject $leaveAssignmentData) {
+    protected function saveLeaveRequest(LeaveParameterObject $leaveAssignmentData, $pushToConnec=true) {
 
         $leaveRequest = $this->generateLeaveRequest($leaveAssignmentData);
 
@@ -132,7 +132,7 @@ class LeaveApplicationService extends AbstractLeaveAllocationService {
                     $loggedInUserId = $user->getAttribute('auth.userId');
                     $loggedInEmpNumber = $user->getAttribute('auth.empNumber');
         
-                    $leaveRequest = $this->getLeaveRequestService()->saveLeaveRequest($leaveRequest, $leaves, $entitlements);
+                    $leaveRequest = $this->getLeaveRequestService()->saveLeaveRequest($leaveRequest, $leaves, $entitlements, $pushToConnec);
                     $leaveComment = trim($leaveRequest->getComments());
                                    
                     if (!empty($leaveComment)) {                                                       

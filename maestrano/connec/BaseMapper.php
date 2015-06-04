@@ -25,6 +25,20 @@ abstract class BaseMapper {
     $this->_connec_client = new Maestrano_Connec_Client();
   }
 
+  // Transform a date in format 'Y-m-d' into a time in ISO format
+  public function dateStringToTime($date_str) {
+    $date = DateTime::createFromFormat('Y-m-d', $date_str);
+    if(!$date) { return null; }
+    return $date->format("c");
+  }
+
+  // Transform a time in ISO format into a date in format 'Y-m-d'
+  public function timeToDateString($time_str) {
+    $date = DateTime::createFromFormat('Y-m-d\TH:i:s+', $time_str);
+    if(!$date) { return null; }
+    return $date->format("Y-m-d");
+  }
+
   // Overwrite me!
   // Return the Model local id
   abstract protected function getId($model);
