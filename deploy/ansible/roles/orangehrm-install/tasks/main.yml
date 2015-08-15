@@ -67,6 +67,16 @@
   tags:
     - update
 
+- name: OrangeHRM | Create /var/log/orangehrm directory
+  file:
+    path: "/var/log/orangehrm"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: 0755
+  tags:
+    - configuration
+
 - name: OrangeHRM | Configure Apache virtual host
   template:
     src: etc-apache24-confd-orangehrm-conf
@@ -99,16 +109,6 @@
     - base_schema.sql
     - 1_add_mno_uid_field.sql
     - 2_add_mno_id_map.sql
-
-- name: OrangeHRM | Create default documents directory
-  file:
-    path: "{{ orangehrm_root_path }}/documents"
-    state: directory
-    owner: www-data
-    group: www-data
-    mode: 0755
-  tags:
-    - configuration
 
 - name: OrangeHRM | Set file permissions
   file:
