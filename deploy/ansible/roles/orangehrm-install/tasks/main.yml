@@ -60,6 +60,11 @@
   tags:
     - update
 
+- shell: ls -al /var/lib/orangehrm
+  register: result
+  tags:
+    - update
+
 - name: Ansible | Update scripts
   copy:
     src: "{{ orangehrm_root_path }}/deploy/ansible"
