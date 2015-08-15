@@ -43,6 +43,7 @@
                 "journals": false,
                 "projects": false,
                 "warehouses": false,
+                "employees": true,
                 "work_locations": true,
                 "time_activities": true,
                 "time_sheets": true,
