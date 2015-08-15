@@ -1,0 +1,176 @@
+# Include orangehrm specific configuration
+- include_vars: "{{ item }}"
+  with_items:
+    - orangehrm.yml
+    - version.yml
+  tags:
+    - configuration
+    - update
+
+- name: General | Install Application packages
+  apt: "name={{ item }} state=present"
+  with_items:
+    - git
+    - curl
+
+- name: OrangeHRM | Ensure MySQL is running
+  command: service mysql start
+  ignore_errors: yes
+  tags:
+    - configuration
+
+- name: OrangeHRM | Create OrangeHRM database
+  mysql_db:
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+    db: "{{ orangehrm_db_name }}"
+    state: present
+
+- name: OrangeHRM | Create OrangeHRM database user
+  mysql_user:
+    name: "{{ orangehrm_db_user }}"
+    password: "{{ orangehrm_db_password }}"
+    priv: "{{ orangehrm_db_name }}.*:ALL,GRANT"
+    state: present
+    login_user: root
+    login_password: "{{ mysql_root_password }}"
+
+- name: OrangeHRM | Download application from Github
+  sudo: false
+  git:
+    repo: "https://github.com/{{ application_repository }}/orangehrm.git"
+    dest: "{{ orangehrm_root_path }}"
+    version: "{{ application_version }}"
+    accept_hostkey: yes
+    ssh_opts: "-o StrictHostKeyChecking=no"
+    update: yes
+    force: yes
+  tags:
+    - update
+
+- name: OrangeHRM | Current commit hash
+  shell: 'git log -n 1 --pretty=format:"%H" > {{ orangehrm_root_path }}/.git-version'
+  args:
+    chdir: "{{ orangehrm_root_path }}"
+  tags:
+    - update
+
+- name: Git | Ignore files permissions changes
+  command: "git config core.filemode false chdir={{ orangehrm_root_path }}"
+  tags:
+    - update
+
+- name: Ansible | Update scripts
+  copy:
+    src: "{{ orangehrm_root_path }}/deploy/ansible"
+    dest: /etc/
+  tags:
+    - update
+
+- name: OrangeHRM | Configure Apache virtual host
+  template:
+    src: etc-apache24-confd-orangehrm-conf
+    dest: /etc/apache2/sites-available/orangehrm.conf
+    owner: www-data
+    group: www-data
+    mode: 0755
+
+- name: OrangeHRM | Enable Apache virtual host
+  file: src=/etc/apache2/sites-available/orangehrm.conf dest=/etc/apache2/sites-enabled/orangehrm.conf state=link
+
+- name: Apache | Restart the Apache service
+  service:
+    name: apache2
+    state: restarted
+
+- name: OrangeHRM | Base schema base_schema.sql
+  template:
+    src: orangehrm-base-schema.sql
+    dest: "{{ orangehrm_root_path }}/maestrano/app/db/base_schema.sql"
+    owner: www-data
+    group: www-data
+    mode: 0755
+
+- name: OrangeHRM | Apply Maestrano patch
+  shell: "mysql {{ orangehrm_db_name }} -u{{orangehrm_db_user}} -p{{orangehrm_db_password}} < maestrano/app/db/{{ item }}"
+  args:
+    chdir: "{{ orangehrm_root_path }}"
+  with_items:
+    - base_schema.sql
+    - 1_add_mno_uid_field.sql
+    - 2_add_mno_id_map.sql
+
+- name: OrangeHRM | Create default documents directory
+  file:
+    path: "{{ orangehrm_root_path }}/documents"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: 0755
+  tags:
+    - configuration
+
+- name: OrangeHRM | Set file permissions
+  file:
+    path: "{{ orangehrm_root_path }}"
+    mode: 0755
+    owner: www-data
+    group: www-data
+    state: directory
+    recurse: yes
+  tags:
+    - configuration
+
+- name: OrangeHRM | Add an install lock file
+  file:
+    path: "{{ orangehrm_root_path }}/documents/install.lock"
+    state: touch
+
+- name: OrangeHRM | Configuration file Conf.php
+  template:
+    src: orangehrm-conf.php
+    dest: "{{ orangehrm_root_path }}/lib/confs/Conf.php"
+    owner: www-data
+    group: www-data
+    mode: 0500
+  tags:
+    - configuration
+
+- name: OrangeHRM | Database Configuration file databases.yml
+  template:
+    src: orangehrm-databases.yml
+    dest: "{{ orangehrm_root_path }}/symfony/config/databases.yml"
+    owner: www-data
+    group: www-data
+    mode: 0500
+  tags:
+    - configuration
+
+- name: OrangeHRM | Configuration file maestrano.json
+  template:
+    src: orangehrm-maestrano.json
+    dest: "{{ orangehrm_root_path }}/maestrano.json"
+    owner: www-data
+    group: www-data
+    mode: 0755
+  tags:
+    - configuration
+
+- name: OrangeHRM | Set log files permissions
+  file:
+    path: /var/log/apache2
+    mode: 0755
+    owner: www-data
+    group: www-data
+    state: directory
+    recurse: yes
+  tags:
+    - configuration
+
+- name: OrangeHRM | Import Connec! data
+  shell: "(nohup php initialize.php 1>/var/log/apache2/orangehrm_initialize.log 2>&1) &"
+  args:
+    chdir: "{{ orangehrm_root_path }}/maestrano/scripts"
+  sudo_user: www-data
+  tags:
+    - configuration

@@ -1,0 +1,11 @@
+---
+
+# This playbook installs and configures OrangeHRM
+
+- hosts: localhost
+  connection: local
+  roles:
+    - apache
+    - mysql
+    - ssmtp
+    - orangehrm-install
