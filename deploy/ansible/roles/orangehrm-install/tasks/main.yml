@@ -121,11 +121,6 @@
   tags:
     - configuration
 
-- name: OrangeHRM | Add an install lock file
-  file:
-    path: "{{ orangehrm_root_path }}/documents/install.lock"
-    state: touch
-
 - name: OrangeHRM | Configuration file Conf.php
   template:
     src: orangehrm-conf.php
