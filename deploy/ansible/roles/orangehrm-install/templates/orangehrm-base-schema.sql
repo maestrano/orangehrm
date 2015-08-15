@@ -221,6 +221,66 @@ CREATE TABLE `hs_hr_emp_attachment` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `hs_hr_performance_review`
+--
+
+DROP TABLE IF EXISTS `hs_hr_performance_review`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE hs_hr_performance_review (
+  `id` BIGINT,
+  `employee_id` BIGINT,
+  `reviewer_id` BIGINT,
+  `creator_id` VARCHAR(36),
+  `job_title_code` VARCHAR(10),
+  `sub_division_id` BIGINT,
+  `creation_date` DATE,
+  `period_from` DATE,
+  `period_to` DATE,
+  `due_date` DATE,
+  `state` SMALLINT,
+  `kpis` TEXT,
+  PRIMARY KEY(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `hs_hr_performance_review_comments`
+--
+
+DROP TABLE IF EXISTS `hs_hr_performance_review_comments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE hs_hr_performance_review_comments (
+  `id` BIGINT AUTO_INCREMENT,
+  `pr_id` BIGINT,
+  `employee_id` BIGINT,
+  `comment` TEXT,
+  `create_date` DATE,
+  PRIMARY KEY(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `hs_hr_kpi`
+--
+
+DROP TABLE IF EXISTS `hs_hr_kpi`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE hs_hr_kpi (
+  `id` INT,
+  `job_title_code` VARCHAR(13),
+  `description` VARCHAR(200),
+  `rate_min` FLOAT(18, 2),
+  `rate_max` FLOAT(18, 2),
+  `rate_default` TINYINT,
+  `is_active` TINYINT,
+  PRIMARY KEY(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `hs_hr_emp_attachment`
 --
 
@@ -2752,7 +2812,7 @@ CREATE TABLE `ohrm_menu_item` (
 
 LOCK TABLES `ohrm_menu_item` WRITE;
 /*!40000 ALTER TABLE `ohrm_menu_item` DISABLE KEYS */;
-INSERT INTO `ohrm_menu_item` VALUES (1,'Admin',74,NULL,1,100,NULL,1),(2,'User Management',NULL,1,2,100,NULL,1),(3,'Project Info',NULL,52,2,400,NULL,0),(4,'Customers',36,3,3,100,NULL,0),(5,'Projects',37,3,3,200,NULL,0),(6,'Job',NULL,1,2,300,NULL,1),(7,'Job Titles',23,6,3,100,NULL,1),(8,'Pay Grades',24,6,3,200,NULL,1),(9,'Employment Status',25,6,3,300,NULL,1),(10,'Job Categories',26,6,3,400,NULL,1),(11,'Work Shifts',27,6,3,500,NULL,1),(12,'Organization',NULL,1,2,400,NULL,1),(13,'General Information',20,12,3,100,NULL,1),(14,'Locations',21,12,3,200,NULL,1),(15,'Structure',22,12,3,300,NULL,1),(16,'Qualifications',NULL,1,2,500,NULL,1),(17,'Skills',28,16,3,100,NULL,1),(18,'Education',29,16,3,200,NULL,1),(19,'Licenses',30,16,3,300,NULL,1),(20,'Languages',31,16,3,400,NULL,1),(21,'Memberships',32,16,3,500,NULL,1),(22,'Nationalities',33,1,2,700,NULL,1),(23,'Configuration',NULL,1,2,900,NULL,1),(24,'Email Configuration',34,23,3,100,NULL,1),(25,'Email Subscriptions',35,23,3,200,NULL,1),(27,'Localization',38,23,3,300,NULL,1),(28,'Modules',39,23,3,400,NULL,1),(30,'PIM',75,NULL,1,200,NULL,1),(31,'Configuration',NULL,30,2,100,NULL,1),(32,'Optional Fields',40,31,3,100,NULL,1),(33,'Custom Fields',41,31,3,200,NULL,1),(34,'Data Import',42,31,3,300,NULL,1),(35,'Reporting Methods',43,31,3,400,NULL,1),(36,'Termination Reasons',44,31,3,500,NULL,1),(37,'Employee List',5,30,2,200,'/reset/1',1),(38,'Add Employee',4,30,2,300,NULL,1),(39,'Reports',45,30,2,400,'/reportGroup/3/reportType/PIM_DEFINED',1),(40,'My Info',46,NULL,1,700,NULL,1),(41,'Leave',68,NULL,1,300,NULL,1),(42,'Configure',NULL,41,2,500,NULL,0),(43,'Leave Period',47,42,3,100,NULL,0),(44,'Leave Types',7,42,3,200,NULL,0),(45,'Work Week',14,42,3,300,NULL,0),(46,'Holidays',11,42,3,400,NULL,0),(48,'Leave List',16,41,2,600,'/reset/1',0),(49,'Assign Leave',17,41,2,700,NULL,0),(50,'My Leave',48,41,2,200,'/reset/1',0),(51,'Apply',49,41,2,100,NULL,0),(52,'Time',67,NULL,1,400,NULL,1),(53,'Timesheets',NULL,52,2,100,NULL,1),(54,'My Timesheets',51,53,3,100,NULL,0),(55,'Employee Timesheets',52,53,3,200,NULL,0),(56,'Attendance',NULL,52,2,200,NULL,1),(57,'My Records',53,56,3,100,NULL,0),(58,'Punch In/Out',54,56,3,200,NULL,0),(59,'Employee Records',55,56,3,300,NULL,0),(60,'Configuration',56,56,3,400,NULL,0),(61,'Reports',NULL,52,2,300,NULL,1),(62,'Project Reports',57,61,3,100,'?reportId=1',0),(63,'Employee Reports',58,61,3,200,'?reportId=2',0),(64,'Attendance Summary',59,61,3,300,'?reportId=4',0),(65,'Recruitment',76,NULL,1,500,NULL,1),(66,'Candidates',60,65,2,100,NULL,1),(67,'Vacancies',61,65,2,200,NULL,1),(74,'Entitlements',NULL,41,2,300,NULL,0),(75,'Add Entitlements',72,74,3,100,NULL,0),(76,'My Entitlements',70,74,3,300,'/reset/1',0),(77,'Employee Entitlements',69,74,3,200,'/reset/1',0),(78,'Reports',NULL,41,2,400,NULL,0),(79,'Leave Entitlements and Usage Report',78,78,3,100,NULL,0),(80,'My Leave Entitlements and Usage Report',79,78,3,200,NULL,0),(81,'Users',1,2,3,100,NULL,1),(82,'Dashboard',103,NULL,1,800,NULL,1),(83,'Performance',NULL,NULL,1,700,'',1),(84,'Configure',NULL,83,2,100,'',1),(85,'Manage Reviews',NULL,83,2,200,'',1),(86,'KPIs',105,84,3,100,'',1),(87,'Manage Reviews',111,85,3,100,'',1),(88,'My Reviews',106,85,3,200,'',1),(89,'Review List',110,85,3,300,'',1),(90,'Trackers',112,84,3,200,NULL,1),(91,'Employee Trackers',113,83,2,800,NULL,1),(92,'My Trackers',114,83,2,700,NULL,1);
+INSERT INTO `ohrm_menu_item` VALUES (1,'Admin',74,NULL,1,100,NULL,1),(2,'User Management',NULL,1,2,100,NULL,1),(3,'Project Info',NULL,52,2,400,NULL,0),(4,'Customers',36,3,3,100,NULL,0),(5,'Projects',37,3,3,200,NULL,0),(6,'Job',NULL,1,2,300,NULL,1),(7,'Job Titles',23,6,3,100,NULL,1),(8,'Pay Grades',24,6,3,200,NULL,1),(9,'Employment Status',25,6,3,300,NULL,1),(10,'Job Categories',26,6,3,400,NULL,1),(11,'Work Shifts',27,6,3,500,NULL,1),(12,'Organization',NULL,1,2,400,NULL,1),(13,'General Information',20,12,3,100,NULL,1),(14,'Locations',21,12,3,200,NULL,1),(15,'Structure',22,12,3,300,NULL,1),(16,'Qualifications',NULL,1,2,500,NULL,1),(17,'Skills',28,16,3,100,NULL,1),(18,'Education',29,16,3,200,NULL,1),(19,'Licenses',30,16,3,300,NULL,1),(20,'Languages',31,16,3,400,NULL,1),(21,'Memberships',32,16,3,500,NULL,1),(22,'Nationalities',33,1,2,700,NULL,1),(23,'Configuration',NULL,1,2,900,NULL,1),(24,'Email Configuration',34,23,3,100,NULL,1),(25,'Email Subscriptions',35,23,3,200,NULL,1),(27,'Localization',38,23,3,300,NULL,1),(28,'Modules',39,23,3,400,NULL,1),(30,'PIM',75,NULL,1,200,NULL,1),(31,'Configuration',NULL,30,2,100,NULL,1),(32,'Optional Fields',40,31,3,100,NULL,1),(33,'Custom Fields',41,31,3,200,NULL,1),(34,'Data Import',42,31,3,300,NULL,1),(35,'Reporting Methods',43,31,3,400,NULL,1),(36,'Termination Reasons',44,31,3,500,NULL,1),(37,'Employee List',5,30,2,200,'/reset/1',1),(38,'Add Employee',4,30,2,300,NULL,1),(39,'Reports',45,30,2,400,'/reportGroup/3/reportType/PIM_DEFINED',1),(40,'My Info',46,NULL,1,700,NULL,1),(41,'Leave',68,NULL,1,300,NULL,1),(42,'Configure',NULL,41,2,500,NULL,0),(43,'Leave Period',47,42,3,100,NULL,0),(44,'Leave Types',7,42,3,200,NULL,0),(45,'Work Week',14,42,3,300,NULL,0),(46,'Holidays',11,42,3,400,NULL,0),(48,'Leave List',16,41,2,600,'/reset/1',0),(49,'Assign Leave',17,41,2,700,NULL,0),(50,'My Leave',48,41,2,200,'/reset/1',0),(51,'Apply',49,41,2,100,NULL,0),(52,'Time',67,NULL,1,400,NULL,1),(53,'Timesheets',NULL,52,2,100,NULL,1),(54,'My Timesheets',51,53,3,100,NULL,0),(55,'Employee Timesheets',52,53,3,200,NULL,0),(56,'Attendance',NULL,52,2,200,NULL,1),(57,'My Records',53,56,3,100,NULL,0),(58,'Punch In/Out',54,56,3,200,NULL,0),(59,'Employee Records',55,56,3,300,NULL,0),(60,'Configuration',56,56,3,400,NULL,0),(61,'Reports',NULL,52,2,300,NULL,1),(62,'Project Reports',57,61,3,100,'?reportId=1',0),(63,'Employee Reports',58,61,3,200,'?reportId=2',0),(64,'Attendance Summary',59,61,3,300,'?reportId=4',0),(65,'Recruitment',76,NULL,1,500,NULL,1),(66,'Candidates',60,65,2,100,NULL,1),(67,'Vacancies',61,65,2,200,NULL,1),(74,'Entitlements',NULL,41,2,300,NULL,0),(75,'Add Entitlements',72,74,3,100,NULL,0),(76,'My Entitlements',70,74,3,300,'/reset/1',0),(77,'Employee Entitlements',69,74,3,200,'/reset/1',0),(78,'Reports',NULL,41,2,400,NULL,0),(79,'Leave Entitlements and Usage Report',78,78,3,100,NULL,0),(80,'My Leave Entitlements and Usage Report',79,78,3,200,NULL,0),(81,'Users',1,2,3,100,NULL,1),(82,'Dashboard',103,NULL,1,800,NULL,1),(83,'Performance',NULL,NULL,1,700,'',1),(84,'Configure',NULL,83,2,100,'',1),(85,'Manage Reviews',111,83,2,200,'',1),(86,'KPIs',105,84,3,100,'',1),(90,'Trackers',112,84,3,200,NULL,1),(91,'Employee Trackers',113,83,2,800,NULL,1),(92,'My Trackers',114,83,2,700,NULL,1);
 /*!40000 ALTER TABLE `ohrm_menu_item` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -3377,7 +3437,7 @@ CREATE TABLE `ohrm_screen` (
 
 LOCK TABLES `ohrm_screen` WRITE;
 /*!40000 ALTER TABLE `ohrm_screen` DISABLE KEYS */;
-INSERT INTO `ohrm_screen` VALUES (1,'User List',2,'viewSystemUsers'),(2,'Add/Edit System User',2,'saveSystemUser'),(3,'Delete System Users',2,'deleteSystemUsers'),(4,'Add Employee',3,'addEmployee'),(5,'View Employee List',3,'viewEmployeeList'),(6,'Delete Employees',3,'deleteEmployees'),(7,'Leave Type List',4,'leaveTypeList'),(8,'Define Leave Type',4,'defineLeaveType'),(9,'Undelete Leave Type',4,'undeleteLeaveType'),(10,'Delete Leave Type',4,'deleteLeaveType'),(11,'View Holiday List',4,'viewHolidayList'),(12,'Define Holiday',4,'defineHoliday'),(13,'Delete Holiday',4,'deleteHoliday'),(14,'Define WorkWeek',4,'defineWorkWeek'),(16,'Leave List',4,'viewLeaveList'),(17,'Assign Leave',4,'assignLeave'),(18,'View Leave Summary',4,'viewLeaveSummary'),(19,'Save Leave Entitlements',4,'saveLeaveEntitlements'),(20,'General Information',2,'viewOrganizationGeneralInformation'),(21,'Location List',2,'viewLocations'),(22,'View Company Structure',2,'viewCompanyStructure'),(23,'Job Title List',2,'viewJobTitleList'),(24,'Pay Grade List',2,'viewPayGrades'),(25,'Employment Status List',2,'employmentStatus'),(26,'Job Category List',2,'jobCategory'),(27,'Work Shift List',2,'workShift'),(28,'Skill List',2,'viewSkills'),(29,'Education List',2,'viewEducation'),(30,'License List',2,'viewLicenses'),(31,'Language List',2,'viewLanguages'),(32,'Membership List',2,'membership'),(33,'Nationality List',2,'nationality'),(34,'Add/Edit Mail Configuration',2,'listMailConfiguration'),(35,'Notification List',2,'viewEmailNotification'),(36,'Customer List',2,'viewCustomers'),(37,'Project List',2,'viewProjects'),(38,'Localization',2,'localization'),(39,'Module Configuration',2,'viewModules'),(40,'Configure PIM',3,'configurePim'),(41,'Custom Field List',3,'listCustomFields'),(42,'Data Import',2,'pimCsvImport'),(43,'Reporting Method List',3,'viewReportingMethods'),(44,'Termination Reason List',3,'viewTerminationReasons'),(45,'PIM Reports List',1,'viewDefinedPredefinedReports'),(46,'View MyInfo',3,'viewMyDetails'),(47,'Define Leave Period',4,'defineLeavePeriod'),(48,'View My Leave List',4,'viewMyLeaveList'),(49,'Apply Leave',4,'applyLeave'),(50,'Define Timesheet Start Date',5,'defineTimesheetPeriod'),(51,'View My Timesheet',5,'viewMyTimesheet'),(52,'View Employee Timesheet',5,'viewEmployeeTimesheet'),(53,'View My Attendance',6,'viewMyAttendanceRecord'),(54,'Punch In/Out',6,'punchIn'),(55,'View Employee Attendance',6,'viewAttendanceRecord'),(56,'Attendance Configuration',6,'configure'),(57,'View Project Report Criteria',5,'displayProjectReportCriteria'),(58,'View Employee Report Criteria',5,'displayEmployeeReportCriteria'),(59,'View Attendance Report Criteria',5,'displayAttendanceSummaryReportCriteria'),(60,'Candidate List',7,'viewCandidates'),(61,'Vacancy List',7,'viewJobVacancy'),(67,'View Time Module',5,'viewTimeModule'),(68,'View Leave Module',4,'viewLeaveModule'),(69,'Leave Entitlements',4,'viewLeaveEntitlements'),(70,'My Leave Entitlements',4,'viewMyLeaveEntitlements'),(71,'Delete Leave Entitlements',4,'deleteLeaveEntitlements'),(72,'Add Leave Entitlement',4,'addLeaveEntitlement'),(73,'Edit Leave Entitlement',4,'editLeaveEntitlement'),(74,'View Admin Module',2,'viewAdminModule'),(75,'View PIM Module',3,'viewPimModule'),(76,'View Recruitment Module',7,'viewRecruitmentModule'),(78,'Leave Balance Report',4,'viewLeaveBalanceReport'),(79,'My Leave Balance Report',4,'viewMyLeaveBalanceReport'),(80,'Save Job Title',2,'saveJobTitle'),(81,'Delete Job Title',2,'deleteJobTitle'),(82,'Save Pay Grade',2,'payGrade'),(83,'Delete Pay Grade',2,'deletePayGrades'),(84,'Save Pay Grade Currency',2,'savePayGradeCurrency'),(85,'Delete Pay Grade Currency',2,'deletePayGradeCurrency'),(86,'Add Customer',2,'addCustomer'),(87,'Delete Customer',2,'deleteCustomer'),(88,'Save Project',2,'saveProject'),(89,'Delete Project',2,'deleteProject'),(90,'Add Project Adtivity',2,'addProjectActivity'),(91,'Delete Project Adtivity',2,'deleteProjectActivity'),(92,'Define PIM reports',1,'definePredefinedReport'),(93,'Display PIM reports',1,'displayPredefinedReport'),(94,'Add Job Vacancy',7,'addJobVacancy'),(95,'Delete Job Vacancy',7,'deleteJobVacancy'),(96,'Add Candidate',7,'addCandidate'),(97,'Delete Candidate',7,'deleteCandidateVacancies'),(98,'View Leave Request',4,'viewLeaveRequest'),(99,'Change Leave Status',4,'changeLeaveStatus'),(100,'Terminate Employment',3,'terminateEmployement'),(101,'View Attendance Summary Report',5,'displayAttendanceSummaryReport'),(102,'View Project Activity Details Report',5,'displayProjectActivityDetailsReport'),(103,'Dashboard',10,'index'),(104,'Save KPI',11,'saveKpi'),(105,'Saearch KPI',11,'searchKpi'),(106,'My Reviews',11,'myPerformanceReview'),(107,'Add Review',11,'saveReview'),(108,'Review Evaluate',11,'reviewEvaluate'),(109,'Review Evaluate By Admin',11,'reviewEvaluateByAdmin'),(110,'Search Evaluate Performance',11,'searchEvaluatePerformancReview'),(111,'Search Performance Review',11,'searchPerformancReview'),(112,'Manage_Trackers',12,'addPerformanceTracker'),(113,'Employee_Trackers',12,'viewEmployeePerformanceTrackerList'),(114,'My_Trackers',12,'viewMyPerformanceTrackerList'),(115,'Employee_Tracker_Logs',12,'addPerformanceTrackerLog');
+INSERT INTO `ohrm_screen` VALUES (1,'User List',2,'viewSystemUsers'),(2,'Add/Edit System User',2,'saveSystemUser'),(3,'Delete System Users',2,'deleteSystemUsers'),(4,'Add Employee',3,'addEmployee'),(5,'View Employee List',3,'viewEmployeeList'),(6,'Delete Employees',3,'deleteEmployees'),(7,'Leave Type List',4,'leaveTypeList'),(8,'Define Leave Type',4,'defineLeaveType'),(9,'Undelete Leave Type',4,'undeleteLeaveType'),(10,'Delete Leave Type',4,'deleteLeaveType'),(11,'View Holiday List',4,'viewHolidayList'),(12,'Define Holiday',4,'defineHoliday'),(13,'Delete Holiday',4,'deleteHoliday'),(14,'Define WorkWeek',4,'defineWorkWeek'),(16,'Leave List',4,'viewLeaveList'),(17,'Assign Leave',4,'assignLeave'),(18,'View Leave Summary',4,'viewLeaveSummary'),(19,'Save Leave Entitlements',4,'saveLeaveEntitlements'),(20,'General Information',2,'viewOrganizationGeneralInformation'),(21,'Location List',2,'viewLocations'),(22,'View Company Structure',2,'viewCompanyStructure'),(23,'Job Title List',2,'viewJobTitleList'),(24,'Pay Grade List',2,'viewPayGrades'),(25,'Employment Status List',2,'employmentStatus'),(26,'Job Category List',2,'jobCategory'),(27,'Work Shift List',2,'workShift'),(28,'Skill List',2,'viewSkills'),(29,'Education List',2,'viewEducation'),(30,'License List',2,'viewLicenses'),(31,'Language List',2,'viewLanguages'),(32,'Membership List',2,'membership'),(33,'Nationality List',2,'nationality'),(34,'Add/Edit Mail Configuration',2,'listMailConfiguration'),(35,'Notification List',2,'viewEmailNotification'),(36,'Customer List',2,'viewCustomers'),(37,'Project List',2,'viewProjects'),(38,'Localization',2,'localization'),(39,'Module Configuration',2,'viewModules'),(40,'Configure PIM',3,'configurePim'),(41,'Custom Field List',3,'listCustomFields'),(42,'Data Import',2,'pimCsvImport'),(43,'Reporting Method List',3,'viewReportingMethods'),(44,'Termination Reason List',3,'viewTerminationReasons'),(45,'PIM Reports List',1,'viewDefinedPredefinedReports'),(46,'View MyInfo',3,'viewMyDetails'),(47,'Define Leave Period',4,'defineLeavePeriod'),(48,'View My Leave List',4,'viewMyLeaveList'),(49,'Apply Leave',4,'applyLeave'),(50,'Define Timesheet Start Date',5,'defineTimesheetPeriod'),(51,'View My Timesheet',5,'viewMyTimesheet'),(52,'View Employee Timesheet',5,'viewEmployeeTimesheet'),(53,'View My Attendance',6,'viewMyAttendanceRecord'),(54,'Punch In/Out',6,'punchIn'),(55,'View Employee Attendance',6,'viewAttendanceRecord'),(56,'Attendance Configuration',6,'configure'),(57,'View Project Report Criteria',5,'displayProjectReportCriteria'),(58,'View Employee Report Criteria',5,'displayEmployeeReportCriteria'),(59,'View Attendance Report Criteria',5,'displayAttendanceSummaryReportCriteria'),(60,'Candidate List',7,'viewCandidates'),(61,'Vacancy List',7,'viewJobVacancy'),(67,'View Time Module',5,'viewTimeModule'),(68,'View Leave Module',4,'viewLeaveModule'),(69,'Leave Entitlements',4,'viewLeaveEntitlements'),(70,'My Leave Entitlements',4,'viewMyLeaveEntitlements'),(71,'Delete Leave Entitlements',4,'deleteLeaveEntitlements'),(72,'Add Leave Entitlement',4,'addLeaveEntitlement'),(73,'Edit Leave Entitlement',4,'editLeaveEntitlement'),(74,'View Admin Module',2,'viewAdminModule'),(75,'View PIM Module',3,'viewPimModule'),(76,'View Recruitment Module',7,'viewRecruitmentModule'),(78,'Leave Balance Report',4,'viewLeaveBalanceReport'),(79,'My Leave Balance Report',4,'viewMyLeaveBalanceReport'),(80,'Save Job Title',2,'saveJobTitle'),(81,'Delete Job Title',2,'deleteJobTitle'),(82,'Save Pay Grade',2,'payGrade'),(83,'Delete Pay Grade',2,'deletePayGrades'),(84,'Save Pay Grade Currency',2,'savePayGradeCurrency'),(85,'Delete Pay Grade Currency',2,'deletePayGradeCurrency'),(86,'Add Customer',2,'addCustomer'),(87,'Delete Customer',2,'deleteCustomer'),(88,'Save Project',2,'saveProject'),(89,'Delete Project',2,'deleteProject'),(90,'Add Project Adtivity',2,'addProjectActivity'),(91,'Delete Project Adtivity',2,'deleteProjectActivity'),(92,'Define PIM reports',1,'definePredefinedReport'),(93,'Display PIM reports',1,'displayPredefinedReport'),(94,'Add Job Vacancy',7,'addJobVacancy'),(95,'Delete Job Vacancy',7,'deleteJobVacancy'),(96,'Add Candidate',7,'addCandidate'),(97,'Delete Candidate',7,'deleteCandidateVacancies'),(98,'View Leave Request',4,'viewLeaveRequest'),(99,'Change Leave Status',4,'changeLeaveStatus'),(100,'Terminate Employment',3,'terminateEmployement'),(101,'View Attendance Summary Report',5,'displayAttendanceSummaryReport'),(102,'View Project Activity Details Report',5,'displayProjectActivityDetailsReport'),(103,'Dashboard',10,'index'),(104,'Save KPI',11,'saveKpi'),(105,'Saearch KPI',11,'listDefineKpi'),(106,'My Reviews',11,'myPerformanceReview'),(107,'Add Review',11,'saveReview'),(108,'Review Evaluate',11,'reviewEvaluate'),(109,'Review Evaluate By Admin',11,'reviewEvaluateByAdmin'),(110,'Search Evaluate Performance',11,'searchEvaluatePerformancReview'),(111,'Search Performance Review',11,'viewReview'),(112,'Manage_Trackers',12,'addPerformanceTracker'),(113,'Employee_Trackers',12,'viewEmployeePerformanceTrackerList'),(114,'My_Trackers',12,'viewMyPerformanceTrackerList'),(115,'Employee_Tracker_Logs',12,'addPerformanceTrackerLog');
 /*!40000 ALTER TABLE `ohrm_screen` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -4010,23 +4070,23 @@ CREATE FUNCTION  dashboard_get_subunit_parent_id
       DETERMINISTIC
       READS SQL DATA
       BEGIN
-      SELECT (SELECT t2.id 
-               FROM ohrm_subunit t2 
-               WHERE t2.lft < t1.lft AND t2.rgt > t1.rgt    
+      SELECT (SELECT t2.id
+               FROM ohrm_subunit t2
+               WHERE t2.lft < t1.lft AND t2.rgt > t1.rgt
                ORDER BY t2.rgt-t1.rgt ASC LIMIT 1) INTO @parent
       FROM ohrm_subunit t1 WHERE t1.id = id;
 
       RETURN @parent;
 
       END; $$
-      
+
 CREATE EVENT leave_taken_status_change
   ON SCHEDULE EVERY 1 HOUR STARTS NOW()
   DO
     BEGIN
     UPDATE hs_hr_leave SET leave_status = 3 WHERE leave_status = 2 AND leave_date < DATE(NOW());
     END;$$
-                        
+
 DELIMITER ;
 
 -- Dump completed on 2015-02-04 22:51:24
