@@ -1,0 +1,63 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+    ],
+    "hash": "b5c4caf35f1335ef161ea3e9b31b0a71",
+    "packages": [
+        {
+            "name": "maestrano/maestrano-php",
+            "version": "0.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/maestrano/maestrano-php.git",
+                "reference": "c2e17e1b40733990531ae9ae5113ff6a346af2d2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/maestrano/maestrano-php/zipball/c2e17e1b40733990531ae9ae5113ff6a346af2d2",
+                "reference": "c2e17e1b40733990531ae9ae5113ff6a346af2d2",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "4.3.*"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "lib/Maestrano/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnaud Lachaume"
+                }
+            ],
+            "description": "Maestrano PHP Library",
+            "homepage": "https://maestrano.com",
+            "keywords": [
+                "api",
+                "maestrano",
+                "marketplace",
+                "sme"
+            ],
+            "time": "2015-08-19 12:48:14"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "platform": [],
+    "platform-dev": []
+}
