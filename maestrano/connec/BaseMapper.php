@@ -71,6 +71,13 @@ abstract class BaseMapper {
     return true;
   }
 
+  // Overwrite me!
+  // Optional: Method called after pushing an Entity to Connec
+  // Add any custom logic to map the response back to the model
+  public function processConnecResponse($resource_hash, $model) {
+    return $model;
+  }
+
   public function getConnecResourceName() {
     return $this->connec_resource_name;
   }
@@ -108,13 +115,24 @@ abstract class BaseMapper {
     return false;
   }
 
-  // Persist a list of Connec Resources as OrangeHRM Models
+  // Persist a list of Connec Resources as vTiger Models
   public function persistAll($resources_hash) {
-    foreach($resources_hash as $resource_hash) {
-      try {
-        $this->saveConnecResource($resource_hash);
-      } catch (Exception $e) {
-        error_log("Error when processing entity=".$this->connec_entity_name.", id=".$resource_hash['id'].", message=" . $e->getMessage());
+    if(!is_null($resources_hash)) {
+      // If this is an associative array, map its content
+      if(array_values($resources_hash) !== $resources_hash) {
+        try {
+          $this->saveConnecResource($resources_hash);
+        } catch (Exception $e) {
+          error_log("Error when processing entity=".$this->connec_entity_name.", id=".$resource_hash['id'].", message=" . $e->getMessage());
+        }
+      } else {
+        foreach($resources_hash as $resource_hash) {
+          try {
+            $this->saveConnecResource($resource_hash);
+          } catch (Exception $e) {
+            error_log("Error when processing entity=".$this->connec_entity_name.", id=".$resource_hash['id'].", message=" . $e->getMessage());
+          }
+        }
       }
     }
   }
@@ -221,7 +239,7 @@ abstract class BaseMapper {
   }
 
   // Transform an OrangeHRM Model into a Connec Resource and push it to Connec
-  protected function pushToConnec($model) {
+  protected function pushToConnec($model, $saveResult=false) {
     // Transform the Model into a Connec hash
     $resource_hash = $this->mapModelToConnecResource($model);
     $hash = array($this->connec_resource_name => $resource_hash);
@@ -250,8 +268,20 @@ abstract class BaseMapper {
     } else {
       error_log("Processing Connec! response code=$code, body=$body");
       $result = json_decode($response['body'], true);
-      error_log("processing entity_name=$this->local_entity_name entity=". json_encode($result));
-      return $this->saveConnecResource($result[$this->connec_resource_name], true, $model);
+      if($saveResult) {
+        // Save the complete response
+        error_log("saving back entity_name=$this->local_entity_name");
+        return $this->saveConnecResource($result[$this->connec_resource_name], true, $model);
+      } else {
+        // Map the Connec! ID with the local one
+        error_log("mapping back entity_name=$this->local_entity_name");
+        $this->findOrCreateIdMap($result[$this->connec_resource_name], $model);
+
+        // Custom response processing
+        error_log("processing back entity_name=$this->local_entity_name");
+        $this->processConnecResponse($result[$this->connec_resource_name], $model);
+        return $model;
+      }
     }
   }
 
