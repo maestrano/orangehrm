@@ -94,7 +94,7 @@ class EmployeeMapper extends BaseMapper {
     if(!is_null($employee_hash['work_locations'])) {
       $workLocationMapper = new WorkLocationMapper();
       foreach ($employee_hash['work_locations'] as $work_location_hash) {
-        $work_location = $workLocationMapper->loadModelByConnecId($work_location_hash['id']);
+        $work_location = $workLocationMapper->loadModelByConnecId($work_location_hash['work_location_id']);
         $employee->locations->add($work_location);
       }
     }
@@ -147,8 +147,8 @@ class EmployeeMapper extends BaseMapper {
       $workLocationMapper = new WorkLocationMapper();
       $employee_hash['work_locations'] = array();
       foreach ($employee->locations as $location) {
-        $mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($location->id, 'WorkLocation');
-        if($mno_id_map) { $employee_hash['work_locations'][] = $mno_id_map['mno_entity_guid']; }
+        $mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($location->id, 'LOCATION');
+        if($mno_id_map) { $employee_hash['work_locations'][] = array('work_location_id' => $mno_id_map['mno_entity_guid']); }
       }
     }
 
