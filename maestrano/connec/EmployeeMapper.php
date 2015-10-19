@@ -113,6 +113,9 @@ class EmployeeMapper extends BaseMapper {
   protected function mapModelToConnecResource($employee) {
     $employee_hash = array();
 
+    // Missing work_locations will be deleted in Connec!
+    $employee_hash['opts'] = array('sparse' => false);
+
     // Map Employee to Connec hash
     if(!is_null($employee->employeeId)) { $employee_hash['employee_id'] = $employee->employeeId; }
     if(!is_null($employee->firstName)) { $employee_hash['first_name'] = $employee->firstName; }
