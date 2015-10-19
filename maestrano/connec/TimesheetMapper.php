@@ -108,6 +108,9 @@ class TimesheetMapper extends BaseMapper {
   // Map the OrangeHRM Timesheet to a Connec resource hash
   protected function mapModelToConnecResource($timesheet) {
     $timesheet_hash = array();
+
+    // Missing timesheet lines will be deleted in Connec!
+    $timesheet_hash['opts'] = array('sparse' => false);
     
     // Start and End dates can appear in two different formats
     if(!is_null($timesheet->startDate)) {
