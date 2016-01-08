@@ -1,0 +1,6 @@
+# Symfony temporary files
+symfony/log
+symfony/cache
+
+# Maestrano configuration
+maestrano.json
