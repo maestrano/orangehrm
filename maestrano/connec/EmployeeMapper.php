@@ -45,6 +45,16 @@ class EmployeeMapper extends BaseMapper {
     return null;
   }
 
+  // Map back Employee Salaries IDs when pushing to connec!
+  public function processConnecResponse($resource_hash, $employee) {
+    $employeeSalaryMapper = new EmployeeSalaryMapper();
+    foreach ($resource_hash['employee_salaries'] as $index => $employee_salary_hash) {
+      $salary_array = $employee->salary->getData();
+      $employeeSalary = $salary_array[$index];
+      $employeeSalaryMapper->findOrCreateIdMap($employee_salary_hash, $employeeSalary);
+    }
+  }
+
   // Map the Connec resource attributes onto the OrangeHRM Employee
   protected function mapConnecResourceToModel($employee_hash, $employee) {
     // Map hash attributes to Employee
@@ -147,11 +157,20 @@ class EmployeeMapper extends BaseMapper {
 
     // Work Locations
     if(!is_null($employee->locations)) {
-      $workLocationMapper = new WorkLocationMapper();
       $employee_hash['work_locations'] = array();
       foreach ($employee->locations as $location) {
         $mno_id_map = MnoIdMap::findMnoIdMapByLocalIdAndEntityName($location->id, 'LOCATION');
         if($mno_id_map) { $employee_hash['work_locations'][] = array('work_location_id' => $mno_id_map['mno_entity_guid']); }
+      }
+    }
+
+    // Employee Salaries
+    if(!is_null($employee->salary)) {
+      $employeeSalaryMapper = new EmployeeSalaryMapper();
+      $employee_hash['employee_salaries'] = array();
+      foreach ($employee->salary as $employeeSalary) {
+        $employee_salary_hash = $employeeSalaryMapper->mapModelToConnecResource($employeeSalary);
+        $employee_hash['employee_salaries'][] = $employee_salary_hash;
       }
     }
 
