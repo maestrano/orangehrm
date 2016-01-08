@@ -1952,3 +1952,67 @@ CREATE TABLE `ohrm_performance_tracker_reviewer` (
   CONSTRAINT `ohrm_performance_tracker_reviewer_fk1` FOREIGN KEY (`performance_track_id`) REFERENCES `ohrm_performance_track` (`id`) ON DELETE CASCADE ON UPDATE CASCADE, 
   CONSTRAINT `ohrm_performance_tracker_reviewer_fk2` FOREIGN KEY (`reviewer_id`) REFERENCES `hs_hr_employee` (`emp_number`) ON DELETE CASCADE ON UPDATE CASCADE 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `ohrm_ws_consumer` (
+    `app_id` INT UNSIGNED AUTO_INCREMENT,
+    `app_token` VARCHAR(10) NOT NULL,
+    `app_name` VARCHAR(50) DEFAULT NULL,
+    `status` TINYINT NOT NULL DEFAULT 1,
+    PRIMARY KEY(`app_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE ohrm_oauth_client ( client_id VARCHAR(80) NOT NULL, client_secret VARCHAR(80) NOT NULL, redirect_uri VARCHAR(2000)  NOT NULL, CONSTRAINT client_id_pk PRIMARY KEY (client_id));
+CREATE TABLE ohrm_oauth_access_token (access_token VARCHAR(40) NOT NULL, client_id VARCHAR(80) NOT NULL, user_id VARCHAR(255), expires TIMESTAMP NOT NULL,scope VARCHAR(2000), CONSTRAINT access_token_pk PRIMARY KEY (access_token));
+CREATE TABLE ohrm_oauth_authorization_code (authorization_code VARCHAR(40) NOT NULL, client_id VARCHAR(80) NOT NULL, user_id VARCHAR(255), redirect_uri VARCHAR(2000) NOT NULL, expires TIMESTAMP NOT NULL, scope VARCHAR(2000), CONSTRAINT auth_code_pk PRIMARY KEY (authorization_code));
+CREATE TABLE ohrm_oauth_refresh_token ( refresh_token VARCHAR(40) NOT NULL, client_id VARCHAR(80) NOT NULL, user_id VARCHAR(255), expires TIMESTAMP NOT NULL, scope VARCHAR(2000), CONSTRAINT refresh_token_pk PRIMARY KEY (refresh_token));
+CREATE TABLE ohrm_oauth_user (username VARCHAR(255) NOT NULL, password VARCHAR(2000), first_name VARCHAR(255), last_name VARCHAR(255), CONSTRAINT username_pk PRIMARY KEY (username));
+
+CREATE TABLE IF NOT EXISTS `ohrm_openid_provider` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `provider_name` varchar(40) DEFAULT NULL,  
+  `provider_url` varchar(255) DEFAULT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+CREATE TABLE `ohrm_auth_provider_extra_details` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT, 
+    `provider_id` INT(10) NOT NULL,
+    `provider_type` INT, 
+    `client_id` TEXT, 
+    `client_secret` TEXT, 
+    `developer_key` TEXT, 
+    CONSTRAINT FOREIGN KEY (`provider_id`) REFERENCES `ohrm_openid_provider` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) DEFAULT CHARSET=utf8 AUTO_INCREMENT=0;
+
+CREATE TABLE IF NOT EXISTS `ohrm_openid_user_identity` (
+  `user_id` int(10) ,
+  `provider_id` int(10) ,
+  `user_identity` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ;
+
+ALTER TABLE `ohrm_openid_user_identity`
+  ADD CONSTRAINT `ohrm_user_identity_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `ohrm_user` (`id`) ON DELETE SET NULL;
+ALTER TABLE `ohrm_openid_user_identity`
+  ADD CONSTRAINT `ohrm_user_identity_ibfk_2` FOREIGN KEY (`provider_id`) REFERENCES `ohrm_openid_provider` (`id`) ON DELETE SET NULL;
+
+CREATE TABLE abstract_display_field  (
+    `id` BIGINT AUTO_INCREMENT, 
+    `report_group_id` BIGINT NOT NULL, 
+    `name` VARCHAR(255) NOT NULL, 
+    `label` VARCHAR(255) NOT NULL, 
+    `field_alias` VARCHAR(255), 
+    `is_sortable` VARCHAR(10) NOT NULL, 
+    `sort_order` VARCHAR(255), 
+    `sort_field` VARCHAR(255), 
+    element_type VARCHAR(255) NOT NULL, 
+    element_property TEXT NOT NULL, 
+    width VARCHAR(255) NOT NULL, 
+    is_exportable VARCHAR(10), 
+    text_alignment_style VARCHAR(20), 
+    is_value_list TINYINT(1) NOT NULL, 
+    display_field_group_id BIGINT UNSIGNED, 
+    default_value VARCHAR(255), 
+    is_encrypted TINYINT(1) NOT NULL, 
+    is_meta TINYINT(1) DEFAULT '0' NOT NULL, 
+PRIMARY KEY(id)) ENGINE = INNODB;
