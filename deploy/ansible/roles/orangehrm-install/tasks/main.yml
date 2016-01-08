@@ -93,22 +93,16 @@
     name: apache2
     state: restarted
 
-- name: OrangeHRM | Base schema base_schema.sql
-  template:
-    src: orangehrm-base-schema.sql
-    dest: "{{ orangehrm_root_path }}/maestrano/app/db/base_schema.sql"
-    owner: www-data
-    group: www-data
-    mode: 0755
-
 - name: OrangeHRM | Apply Maestrano patch
-  shell: "mysql {{ orangehrm_db_name }} -u{{orangehrm_db_user}} -p{{orangehrm_db_password}} < maestrano/app/db/{{ item }}"
+  shell: "mysql {{ orangehrm_db_name }} -u{{orangehrm_db_user}} -p{{orangehrm_db_password}} < {{ item }}"
   args:
     chdir: "{{ orangehrm_root_path }}"
   with_items:
-    - base_schema.sql
-    - 1_add_mno_uid_field.sql
-    - 2_add_mno_id_map.sql
+    - dbscript/dbscript-1.sql
+    - dbscript/dbscript-2.sql
+    - dbscript/dbscript-functions.sql
+    - maestrano/app/db/1_add_mno_uid_field.sql
+    - maestrano/app/db/2_add_mno_id_map.sql
 
 - name: OrangeHRM | Set file permissions
   file:

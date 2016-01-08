@@ -33,8 +33,8 @@ class Conf {
 
 		$this->dbhost	= 'localhost';
 		$this->dbport 	= '3306';
-		$this->dbname	= 'hr_mysql';
-		$this->dbuser	= 'root';
+		$this->dbname	= 'orangehrm';
+		$this->dbuser	= 'orangehrm';
 		$this->dbpass	= 'orangehrm';
 		$this->smtphost = 'localhost';
 		$this->version = '3.3.2';
