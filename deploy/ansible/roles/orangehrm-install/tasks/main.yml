@@ -67,13 +67,16 @@
   tags:
     - update
 
-- name: OrangeHRM | Create /var/log/orangehrm directory
+- name: OrangeHRM | Create OrangeHRM directories
   file:
-    path: "/var/log/orangehrm"
+    path: "{{ item }}"
     state: directory
     owner: www-data
     group: www-data
     mode: 0755
+  with_items:
+    - /var/log/orangehrm
+    - "{{ orangehrm_root_path }}/symfony/log"
   tags:
     - configuration
 
