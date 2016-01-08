@@ -2719,9 +2719,7 @@ INSERT INTO ohrm_user_role_screen (user_role_id, screen_id, can_read, can_create
 SET @admin_user_role := (SELECT id FROM ohrm_user_role WHERE name = 'Admin');
 SET @ess_user_role := (SELECT id FROM ohrm_user_role WHERE name = 'ESS');
 
-INSERT INTO `ohrm_module`( `name`, `status`) VALUES
-('performanceTracker', 1);
-SET @performance_module_id:= (SELECT LAST_INSERT_ID());
+SET @performance_module_id:= (SELECT `id` FROM `ohrm_module` WHERE `name` = 'performance');
 
 -- Admin Section. Manage Trackers.
 INSERT INTO `ohrm_screen` (`name`, `module_id`, `action_url`) VALUES
@@ -2768,3 +2766,45 @@ SET @employee_tracker_logs_screen_id :=  (SELECT LAST_INSERT_ID());
 INSERT INTO ohrm_user_role_screen (user_role_id, screen_id, can_read, can_create, can_update, can_delete) VALUES
 (@admin_user_role, @employee_tracker_logs_screen_id, 1, 1, 1, 0),
 (@ess_user_role, @employee_tracker_logs_screen_id, 1, 0, 0, 0);
+
+-- Install CorporateDirectory --
+INSERT INTO `ohrm_module` (`name`, `status`) VALUES ('directory', 1);  
+
+SET @module_id := (SELECT LAST_INSERT_ID());  
+  
+INSERT INTO ohrm_screen (`name`, `module_id`, `action_url`) VALUES  
+('Directory', @module_id, 'viewDirectory'); 
+
+SET @directory_configuration_screen_id := (SELECT LAST_INSERT_ID());
+  
+INSERT INTO ohrm_menu_item (`menu_title`, `screen_id`, `parent_id`, `level`, `order_hint`, `url_extras`, `status`) VALUES  
+('Directory', @directory_configuration_screen_id, null, 1, 1000, '/reset/1', 1);  
+  
+SET @admin_role_id := (SELECT `id` FROM ohrm_user_role WHERE `name` = 'Admin'); 
+
+SET @ess_role_id := (SELECT `id` FROM ohrm_user_role WHERE `name` = 'ESS'); 
+
+INSERT INTO ohrm_user_role_screen (user_role_id, screen_id, can_read, can_create, can_update, can_delete) VALUES  
+(@admin_role_id, @directory_configuration_screen_id, 1, 1, 1, 1),
+(@ess_role_id, @directory_configuration_screen_id, 1, 1, 1, 1);  
+
+
+-- install open id 
+
+INSERT INTO `hs_hr_config` (`key` ,`value`) VALUES ('domain.name',  'localhost');
+
+INSERT INTO ohrm_screen ( `name`, `module_id`, `action_url`) VALUES ( 'Manage OpenId', 2, 'openIdProvider');
+SET @opnid_screen_id := (SELECT LAST_INSERT_ID());
+
+SET @admin_menu_id := (SELECT `id` FROM ohrm_menu_item WHERE `menu_title` = 'Admin' AND `level` = 1);
+SET @configuration_id := (SELECT `id` FROM ohrm_menu_item WHERE `menu_title` = 'Configuration' AND `level` = 2 AND parent_id = @admin_menu_id);
+SET @max_order := (SELECT MAX(`order_hint`) FROM ohrm_menu_item WHERE parent_id = @configuration_id);
+
+INSERT INTO ohrm_menu_item ( `menu_title`, `screen_id`, `parent_id`, `level`, `order_hint`, `url_extras`, `status`) VALUES 
+('Social Media Authentication', @opnid_screen_id, @configuration_id, 3, @max_order+100, NULL, 1);
+
+INSERT INTO ohrm_user_role_screen (user_role_id, screen_id, can_read, can_create, can_update, can_delete) VALUES  
+(1, @opnid_screen_id, 1, 1, 1, 0);
+
+INSERT INTO hs_hr_config (`key`, `value`) VALUES  
+('openId.provider.added', 'on');
