@@ -67,6 +67,7 @@ class EmployeeSalaryMapper extends BaseMapper {
 
     // Map EmployeeSalary to Connec hash
     $employee_salary_hash['type'] = 'SALARY';
+    $employee_salary_hash['frequency'] = 'MONTHLY';
     if(!is_null($employeeSalary->salaryName)) { $employee_salary_hash['name'] = $employeeSalary->salaryName; }
     if(!is_null($employeeSalary->amount)) { $employee_salary_hash['annual_salary'] = $employeeSalary->amount; }
     if(!is_null($employeeSalary->currencyType)) { $employee_salary_hash['currency'] = $employeeSalary->currencyType->currency_id; }
