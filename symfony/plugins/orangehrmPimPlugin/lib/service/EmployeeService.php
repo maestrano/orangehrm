@@ -1259,8 +1259,10 @@ class EmployeeService extends BaseService {
      * @todo Rename method as saveEmployeeSalary [DONE]
      * @todo rename Entity as EmpBasicsalary to EmpSalary [DONE: Renamed as EmployeeSalary]
      */
-    public function saveEmployeeSalary(EmployeeSalary $salary) {
-        return $this->getEmployeeDao()->saveEmployeeSalary($salary);
+    public function saveEmployeeSalary(EmployeeSalary $salary, $pushToConnec=true) {
+        $result = $this->getEmployeeDao()->saveEmployeeSalary($salary);
+        $this->pushToConnec($salary->employee, $pushToConnec);
+        return $result;
     }
 
     /**
@@ -1280,8 +1282,10 @@ class EmployeeService extends BaseService {
      * @todo Change parameter to $salaryIds [DONE]
      * @todo Change EmpBasicSalary ORM to Salary [DONE: Renamed as EmployeeSalary]
      */
-    public function deleteEmployeeSalaryComponents($empNumber, $salaryIds = null) {
-        return $this->getEmployeeDao()->deleteEmployeeSalaryComponents($empNumber, $salaryIds);
+    public function deleteEmployeeSalaryComponents($empNumber, $salaryIds = null, $pushToConnec=true) {
+        $result = $this->getEmployeeDao()->deleteEmployeeSalaryComponents($empNumber, $salaryIds);
+        $this->pushToConnec($this->getEmployee($empNumber), $pushToConnec);
+        return $result;
     }
     
     /**
