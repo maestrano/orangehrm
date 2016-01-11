@@ -2,12 +2,12 @@
 
 // Log the current OrangeHRM version on first install
 
-require_once(dirname(__FILE__).'/../../../upgrader/config/ProjectConfiguration.class.php');
+// require_once(dirname(__FILE__).'/../../../upgrader/config/ProjectConfiguration.class.php');
+require_once(dirname(__FILE__).'/../../../upgrader/apps/upgrader/lib/utility/UpgradeUtility.php');
+require_once(dirname(__FILE__).'/../../../upgrader/apps/upgrader/lib/utility/UpgradeLogger.php');
 require_once(dirname(__FILE__).'/../../../lib/confs/Conf.php');
 
 // Database configuration
-$configuration = ProjectConfiguration::getApplicationConfiguration('upgrader', 'prod', false);
-$app_instance = sfContext::createInstance($configuration);
 $conf = new Conf();
 $dbInfo = array(
   'host' => $conf->dbhost,
