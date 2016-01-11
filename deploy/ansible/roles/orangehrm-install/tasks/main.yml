@@ -159,6 +159,13 @@
   tags:
     - configuration
 
+- name: OrangeHRM | Update Application
+  shell: "php upgrade.php"
+  args:
+    chdir: "{{ orangehrm_root_path }}/maestrano/scripts"
+  tags:
+    - update
+
 - name: OrangeHRM | Import Connec! data
   shell: "(nohup php initialize.php 1>/var/log/apache2/orangehrm_initialize.log 2>&1) &"
   args:

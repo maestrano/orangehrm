@@ -2,5 +2,7 @@
 symfony/log
 symfony/cache
 
+lib/confs/Conf.php
+
 # Maestrano configuration
 maestrano.json
