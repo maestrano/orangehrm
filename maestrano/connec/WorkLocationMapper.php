@@ -80,12 +80,12 @@ class WorkLocationMapper extends BaseMapper {
     if(!is_null($workLocation->notes)) { $work_location_hash['description'] = $workLocation->notes; }
 
     // Address
-    $work_location_hash['address'] = array('street' => array());
-    if(!is_null($workLocation->address)) { $work_location_hash['address']['street']['line1'] = $workLocation->address; }
-    if(!is_null($workLocation->city)) { $work_location_hash['address']['street']['city'] = $workLocation->city; }
-    if(!is_null($workLocation->zipCode)) { $work_location_hash['address']['street']['postal_code'] = $workLocation->zipCode; }
-    if(!is_null($workLocation->countryCode)) { $work_location_hash['address']['street']['country'] = $workLocation->countryCode; }
-    if(!is_null($workLocation->province)) { $work_location_hash['address']['street']['region'] = $workLocation->province; }
+    $work_location_hash['address'] = array('shipping' => array());
+    if(!is_null($workLocation->address)) { $work_location_hash['address']['shipping']['line1'] = $workLocation->address; }
+    if(!is_null($workLocation->city)) { $work_location_hash['address']['shipping']['city'] = $workLocation->city; }
+    if(!is_null($workLocation->zipCode)) { $work_location_hash['address']['shipping']['postal_code'] = $workLocation->zipCode; }
+    if(!is_null($workLocation->countryCode)) { $work_location_hash['address']['shipping']['country'] = $workLocation->countryCode; }
+    if(!is_null($workLocation->province)) { $work_location_hash['address']['shipping']['region'] = $workLocation->province; }
 
     // Phone
     if(!is_null($workLocation->phone)) { $work_location_hash['phone']['landline'] = $workLocation->phone; }
