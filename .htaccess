@@ -16,3 +16,7 @@ deny from all
 order allow,deny
 deny from all
 </Files>
+<Files "maestrano.json">
+  Order Allow,Deny
+  Deny from all
+</Files>
